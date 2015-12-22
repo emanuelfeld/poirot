@@ -1,0 +1,45 @@
+
+{{'NNNNNNNNMMMMMMMMMMMo               ```                   ..--::////::-----------'|style('purple')}}
+{{'NNNNNNNMMMMMMMMMMMMh         `-/++o+/:.                  .-:://////:::::-------:'|style('purple')}}
+{{'NNNNNNMMMMMMMMMMMNh/      .:/oyyyysoso/.`               `.:///////////:::::---::'|style('purple')}}
+{{'NNNMMMMMMMMMMMMd+`     `.:/+oosssyyhhhyo/.            ```.-/+++++++++///:::::-::'|style('purple')}}
+{{'NNNNMMMMMMMMMMd`      `-//++o::-.-+yhhhhy/`    .//-` ````.-/+ooo++++++///::----:'|style('purple')}}
+{{'NNN@@@@@@@@@@MMNhso/:.`-:+/:```..::::oyyyo.  .//os/- ````.-/+oo+o++++////::-----'|style('purple')}}
+{{'NNN@        @MMMMMMMd. ``./+:-.`...-/shhhyo--/s//os- `````.:/+++++++////:::--.--'|style('purple')}}
+{{'mmN@ POIROT @MMMMMMMMh-``./yss+::/oydmmhsyyo+ohshyy`   ```.:/++++++//::::::-...-'|style('purple')}}
+{{'mmm@        @NNNNMMMMMm:-:hdhhddhhhdddyyooooooymmdo      `.-/+++/+///::::--.....'|style('purple')}}
+{{'ddd@@@@@@@@@@NNNNNMMMMMo/ommdhysydmNmmdhsosooos++:`       .-://////:::----....``'|style('purple')}}
+{{'hhhddddmmmmmmNNNNNMMMMMh/shho+++ssyhddhs+++oy+/oyhs+.    `.-::/::::------...````'|style('purple')}}
+{{'yyhhhhdddddmmmmmmNNNMMMM+-.` ``:oo/ooo/+o+sho+dMNy:     ```.-::::----......`````'|style('purple')}}
+{{'yyyyyy#################Mm:`    ```.:++/sy+hooNd/`         `.--------......````` '|style('purple')}}
+{{'ossss||               ||Ny/``---/ooo+++so++ys-             `.------....`.```    '|style('purple')}}
+{{'+oooo|| mind your pii ||MMNy-/:/+shhy+/+::-`                ``..--...```````    '|style('purple')}}
+{{'///++||               ||MNd++//+ssyhddy/`                       `-:-.``````     '|style('purple')}}
+{{':::///#################NMmmMMhhdmMMMh-                            `//:.````     '|style('purple')}}
+{{'-:::://////+++++ooosyhmNMMMMMMMMMm+.                                            '|style('purple')}}
+
+{{ "Poirot found the following for "|style('darkgreen') }} {{ info['repo_url']|style('green') ~ " :"|style('darkgreen') }}
+
+Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
+{% for term in data %}
+{{"Pattern"|style('bold')}}:  {{ term }}
+{% for commit in data[term]%}
+Commit {{ commit['commit']}}
+{% for file in commit['files']%}
+  {{file['file']|fail}}
+{% for match in file['matches']%}  Line {{match['line']}}: {{match['text']|highlight(term)}}
+{%endfor%} {%endfor%} 
+{{ "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"|style('gray')}}
+{% endfor %}
+{{"================================================================================="|style('gray')}}
+{%- endfor %}
+
+
+
+{{'-------------------------------------------------------------------------------'|style('purple')}}
+{{'      What do you do when you find something that shouldn\'t be there?         '|style('purple')}}
+{{'                                                                               '|style('purple')}}
+{{'         https://help.github.com/articles/remove-sensitive-data                '|style('blue')}}
+{{'-------------------------------------------------------------------------------'|style('purple')}}
+
+
