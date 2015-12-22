@@ -24,8 +24,11 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {% for term in data %}
 {{"Pattern"|style('bold')}}:  {{ term }}
 {% for commit in data[term]%}
-Commit {{ commit['commit']}}
-{% for file in commit['files']%}
+Commit {{ commit |style('darkblue')}}
+{% if data[term][commit]["log"]%}
+{{data[term][commit]["log"]|highlight(term)}}
+{%endif%}
+{% for file in data[term][commit]['files']%}
   {{file['file']|fail}}
 {% for match in file['matches']%}  Line {{match['line']}}: {{match['text']|highlight(term)}}
 {%endfor%} {%endfor%} 

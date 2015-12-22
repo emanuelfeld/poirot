@@ -3,13 +3,13 @@ import re
 import os
 import argparse
 from clients import *
-from helpers import parse_commits, clone_pull
+from helpers import parse_commits, parse_logs, clone_pull
 from clients.style import style
 
 
 class Poirot(object):
 
-    def __init__(self, client, case, investigation):
+    def __init__(self, client, case):
         """
         Args:
             client: ConsoleClient or ConsoleClientThin object
@@ -18,7 +18,7 @@ class Poirot(object):
         """
         self.meta = {'date': time.strftime('%Y-%m-%d %H:%M:%S %Z')}
         self.case = case
-        self.investigation = investigation
+        self.investigation = {}
         self.client = client
 
     def prepare(self):
@@ -33,7 +33,7 @@ class Poirot(object):
 
     def investigate(self):
         """
-        Call commit log and diff parsers on the given list of
+        Call commit log and diff parsers on a list of
         individual revisions or revision ranges.
         """
         revisions = []
@@ -41,16 +41,19 @@ class Poirot(object):
         if case.revlist:
             revisions = case.revlist.strip().split(',')
         for pattern in case.patterns:
+            self.investigation[pattern] = {}
             for revision in revisions:
-                commit_matches = parse_commits(revision, case.git_dir, pattern, case.author, case.before, case.after)
-                if commit_matches:
-                    self.investigation.add_matches(pattern, commit_matches)
-        #         message_matches = parse_messages(revision,
-        #             self.case.git_dir, pattern)
-        #         self.investigation.add_matches(pattern, message_matches)
+                for m in parse_commits(case.git_dir, pattern, revision, case.author, case.before, case.after):
+                    self.investigation[pattern][m[0]] = {"files": m[1]}
+                for m in parse_logs(case.git_dir, pattern, revision, case.author, case.before, case.after):
+                    try:
+                        self.investigation[pattern][m[0]]["log"] = m[1]
+                    except:
+                        self.investigation[pattern][m[0]] = {}
+                        self.investigation[pattern][m[0]]["log"] = m[1]
 
     def report(self):
-        self.client.render(self.case.patterns, self.investigation.findings, self.case.__dict__)
+        self.client.render(self.case.patterns, self.investigation, self.case.__dict__)
 
 
 class Case(object):
@@ -83,6 +86,15 @@ class Case(object):
         self.skip = facts.skip
 
     def add_patterns(self, file_path):
+        """
+        Args:
+            file_path: Path to a file with patterns separated by newlines.
+
+        Yields:
+            line: A line in the pattern file that is neither blank, nor
+                commented out.
+        """
+
         with open(file_path) as infile:
             for line in infile:
                 line = line.rstrip()
@@ -127,9 +139,9 @@ class Case(object):
         query.add_argument('--revlist', '-rl',
                            dest="revlist",
                            required=False,
-                           help="""A comma-delimited list of revisions (commits) to search.
-                                Defaults to HEAD^!. Specify 'all' to search the entire
-                                revision history.""")
+                           help="""A comma-delimited list of revisions (commits)
+                                to search. Defaults to HEAD^!. Specify 'all'
+                                to search the entire revision history.""")
         query.add_argument('--before', '-b',
                            dest='before',
                            required=False,
@@ -143,21 +155,13 @@ class Case(object):
         query.add_argument('--author',
                            dest="author",
                            required=False,
-                           help="Restrict to commits made by AUTHOR. An email address is fine.")
+                           help="""Restrict to commits made by AUTHOR. An email
+                                address is fine.""")
         query.add_argument('--skip', '-s',
                            dest="skip",
                            action="store_true",
-                           help="If specified, skips any calls to git-clone or git-pull. Useful in combination with --dest to test a local git repo")
+                           help="""If specified, skips any calls to git-clone or
+                                git-pull. Useful in combination with --dest to
+                                test a local git repo""")
         return query
 
-
-class Investigation(object):
-
-    def __init__(self):
-        self.findings = {}
-
-    def add_matches(self, pattern, matches):
-        try:
-            self.findings[pattern].extend(matches)
-        except KeyError:
-            self.findings[pattern] = matches

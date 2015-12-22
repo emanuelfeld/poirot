@@ -40,9 +40,9 @@ symbol_codes = {
 }
 
 
-# Filters to apply styling to console output
-
 def style(text, _code):
+    """Takes a string and styles its print output"""
+
     try:
         return "%s%s%s" % (style_codes[_code], text, reset)
     except:
@@ -50,15 +50,21 @@ def style(text, _code):
 
 
 def ok(text):
+    """Takes a string and prepends a green check to it"""
+
     return "%s %s" % (style(symbol_codes['ok'], 'green'), text)
 
 
 def fail(text=''):
+    """Takes a string and prepends a red x mark to it"""
+
     return "%s %s" % (style(symbol_codes['fail'], 'red'), text)
 
 
-def highlight(text, term):
-    regx = re.compile(term, flags=re.I)
+def highlight(text, pattern):
+    """Takes a string and highlights substrings matching a pattern"""
+
+    regx = re.compile(pattern, flags=re.I)
     match = regx.search(text)
     if match:
         text = text.replace(match.group(0), style(match.group(0), 'red'))

@@ -16,6 +16,7 @@ def ask(question, options, formatting=None):
     Returns:
         response (str): The chosen `options` item.
     """
+
     response = ""
     prompt = '{} [{}] '.format(question, ', '.join(options))
     while response not in options:
@@ -23,8 +24,16 @@ def ask(question, options, formatting=None):
     return response
 
 
-# Clone or pull a repo from URL
 def clone_pull(git_url, repo_dir):
+    """
+    Clones a repository from `git_url` or optionally does a 
+    git pull if the repository already exists at `repo_dir`.
+
+    Args:
+        git_url:
+        repo_dir:
+    """
+
     try:
         subprocess.check_output(['git', 'clone', git_url, repo_dir])
 
@@ -42,14 +51,23 @@ def clone_pull(git_url, repo_dir):
 
 
 def execute_cmd(cmd):
+    """
+    Executes a (git) command
+
+    Args:
+        cmd (list[str]): Git arguments
+    """
+
     popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     return popen.communicate()
 
 
 # Grep search a git directory revision range
-def grep_log(git_dir, formatting, regex, revlist='HEAD\^\!', author=None, before=None, after=None):
-    if revlist == 'all':
-        revlist = '--all'
+def format_grep(git_dir, formatting, regex, revlist='HEAD\^\!', author=None, before=None, after=None):
+    """
+    Returns a formatted git log grep command
+    """
+
     log_cmd = ['git', '--git-dir', git_dir, 'log', revlist, '-i', '-E', '--oneline', formatting]
 
     if author is not None:
@@ -61,12 +79,26 @@ def grep_log(git_dir, formatting, regex, revlist='HEAD\^\!', author=None, before
     if after is not None:
         log_cmd.append('--after')
         log_cmd.append(after)
-
+    if revlist == 'all':
+        log_cmd[4] = '--all'
     log_cmd.extend(regex)
-    return execute_cmd(log_cmd)
+
+    return log_cmd
 
 
 def inspect_revision(git_dir, commit, pattern_re, deleted_re, line_re):
+    """
+    Args:
+        git_dir:
+        commit:
+        pattern_re:
+        deleted_re:
+        line_re:
+
+    Returns:
+        files:
+    """
+
     files = []
     show_cmd = ['git', '--git-dir', git_dir, 'show', commit, '--no-color', '--unified=0']
     (out, err) = execute_cmd(show_cmd)
@@ -75,7 +107,7 @@ def inspect_revision(git_dir, commit, pattern_re, deleted_re, line_re):
         diff_list = out.split('diff --git ')[1:]
         for diff in diff_list:
             (fname, diff_lines) = split_commit(diff, deleted_re)
-            matches = [m for m in matched_lines(diff_lines, line_re, pattern_re)]
+            matches = [m for m in match_lines(diff_lines, line_re, pattern_re)]
             if matches:
                 files.append({"file": fname, "matches": matches})
     except:
@@ -104,7 +136,7 @@ def split_commit(diff, deleted):
         return fname, diff_lines
 
 
-def matched_lines(diff, line_re, pattern_re):
+def match_lines(diff, line_re, pattern_re):
     """
     Args:
         diff: A single file's unified diff information.
@@ -116,6 +148,7 @@ def matched_lines(diff, line_re, pattern_re):
             and which includes pattern_re. Contains the line's number
             and text.
     """
+
     line_num = 0
     for line in diff:
         if not line:
@@ -130,10 +163,23 @@ def matched_lines(diff, line_re, pattern_re):
 
 
 def parse_commits(git_dir, pattern, revlist, author, before, after):
+    """
+    Args:
+        git_dir:
+        pattern:
+        revlist:
+        author:
+        before:
+        after:
+    """
+
     matches = []
     formatting = '--format=%H'
     regex = ['-G' + pattern]
-    (out, err) = grep_log(git_dir, formatting, regex, revlist, author, before, after)
+
+    grep_cmd = format_grep(git_dir, formatting, regex, revlist, author, before, after)
+    (out, err) = execute_cmd(grep_cmd)
+
     revisions = out.strip().split('\n')
 
     pattern_re = re.compile(pattern, re.I)
@@ -141,22 +187,36 @@ def parse_commits(git_dir, pattern, revlist, author, before, after):
     line_re = re.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
     for revision in revisions:
+        match = {revision: {"files": []}}
         files = inspect_revision(git_dir, revision, pattern_re, deleted_re, line_re)
         if files:
-            matches.append({"commit": revision, "files": files})
-    return matches
+            yield revision, files
 
 
 def parse_logs(git_dir, pattern, revlist, author, before, after):
+    """
+    Args:
+        git_dir:
+        pattern:
+        revlist:
+        author:
+        before:
+        after:
+    """
+
+    matches = []
     formatting = '--format=COMMIT: %H %s %b'
     regex = ['--grep', pattern]
-    (out, err) = grep_log(git_dir, formatting, regex, revlist, author, before, after)
-    matches = []
+
+    grep_cmd = format_grep(git_dir, formatting, regex, revlist, author, before, after)
+    (out, err) = execute_cmd(grep_cmd)
+    print out
     try:
         out = out.strip().split('COMMIT: ')
         for log in out[1:]:
             log = log[1:-1].split(' ', 1)
-            matches.append({"commit": log[0], "log": log[1]})
+            commit = log[0]
+            message = log[1]
+            yield commit, message
     except:
         pass
-    return matches
