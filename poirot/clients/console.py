@@ -1,9 +1,9 @@
 import sys
 import subprocess
 
-from abstract import AbstractClient
+from poirot.clients.abstract import AbstractClient
 from jinja2 import Environment, PackageLoader
-from style import fail, ok, highlight, style, chunk_text, strip
+from poirot.clients.style import fail, ok, highlight, style, chunk_text, strip
 
 
 class ConsoleClient(AbstractClient):
@@ -29,7 +29,7 @@ class ConsoleClient(AbstractClient):
                         stdin=subprocess.PIPE, stdout=sys.stdout)
             lines = data_to_render.split('\n')
             for line in lines:
-                pager.stdin.write(line.encode('utf-8') + '\n')
+                pager.stdin.write(line.encode('utf-8') + b'\n')
             pager.stdin.close()
             pager.wait()
         except KeyboardInterrupt:

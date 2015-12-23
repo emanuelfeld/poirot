@@ -3,8 +3,8 @@ import os
 import time
 import re
 
-from helpers import clone_pull, merge_dicts, parse_git
-from clients.style import style
+from poirot.helpers import clone_pull, merge_dicts, parse_git
+from poirot.clients.style import style
 
 VERSION = '0.1.0'
 
@@ -42,7 +42,7 @@ class Poirot(object):
             case.revlist = 'HEAD^!'
 
         if case.skip:
-            print style('Skipping clone or pull as --skip was found', 'blue')
+            print(style('Skipping clone or pull as --skip was found', 'blue'))
             if not os.path.exists(case.git_dir):
                 raise IOError('Invalid .git directory: {}\nSpecify '
                               'the correct local directory with '
@@ -81,7 +81,6 @@ class Poirot(object):
         or revision subset and add matching commit logs
         and diffs to findings.
         """
-
         finding = self.findings[pattern]
 
         for commit, metadata in parse_git('log', pattern, **parser_args):
@@ -96,9 +95,7 @@ class Poirot(object):
 
     def report(self):
         """Render findings in the console"""
-        # print self.findings
         self.client.render(self.findings, self.case.__dict__)
-        # pass
 
 
 class Case(object):

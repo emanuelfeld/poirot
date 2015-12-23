@@ -3,7 +3,7 @@ import sys
 import argparse
 import re
 import subprocess
-from clients.style import style
+from poirot.clients.style import style
 
 
 def ask(question, options, formatting=None):
@@ -24,7 +24,7 @@ def ask(question, options, formatting=None):
     response = ""
     prompt = '{} [{}] '.format(question, ', '.join(options))
     while response not in options:
-        response = raw_input(style(prompt, formatting))
+        response = input(style(prompt, formatting))
     return response
 
 
@@ -54,18 +54,19 @@ def clone_pull(git_url, repo_dir):
     """
 
     try:
-        subprocess.check_output(['git', 'clone', git_url, repo_dir])
+        cmd = ['git', 'clone', git_url, repo_dir]
+        subprocess.check_output(cmd, universal_newlines=True)
 
     except subprocess.CalledProcessError:
-        print style('Directory {} exits.'.format(repo_dir), 'blue')
-        response = ask('Do you want to git-pull?', ['y', 'n'], 'red')
+        response = ask('Do you want to git-pull?', ['y', 'n'], 'darkblue')
         if response == "y":
-            _out = subprocess.check_output(['git', '--git-dir={}/.git'.format(repo_dir), 'pull'])
-            print style('Git says: {}'.format(_out), 'smoke')
+            cmd = ['git', '--git-dir=%s/.git' % (repo_dir), 'pull']
+            _out = subprocess.check_output(cmd, universal_newlines=True)
+            print(style('Git says: {}'.format(_out), 'smoke'))
 
     except:
         error = sys.exc_info()[0]
-        print style('Problem writing to destination: {}'.format(repo_dir), 'red'), error
+        print(style('Problem writing to destination: {}\n'.format(repo_dir), 'red'), error)
         raise
 
 
@@ -77,7 +78,7 @@ def execute_cmd(cmd):
         cmd (list[str]): Git arguments
     """
 
-    popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
     return popen.communicate()
 
 
