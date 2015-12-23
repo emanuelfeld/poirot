@@ -3,7 +3,7 @@ import subprocess
 
 from abstract import AbstractClient
 from jinja2 import Environment, PackageLoader
-from style import fail, ok, highlight, style
+from style import fail, ok, highlight, style, chunk_text, strip
 
 
 class ConsoleClient(AbstractClient):
@@ -11,12 +11,15 @@ class ConsoleClient(AbstractClient):
     def __init__(self):
         pass
 
-    def render(self, terms, data, info):
+    def render(self, data, info):
         env = Environment(loader=PackageLoader('poirot', 'templates'))
         env.filters['ok'] = ok
         env.filters['fail'] = fail
         env.filters['style'] = style
+        env.filters['chunk_text'] = chunk_text
+        env.filters['strip'] = strip
         env.filters['highlight'] = highlight
+
         template = env.get_template('console.html')
 
         data_to_render = template.render(data=data, info=info)

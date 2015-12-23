@@ -69,3 +69,29 @@ def highlight(text, pattern):
     if match:
         text = text.replace(match.group(0), style(match.group(0), 'red'))
     return text
+
+
+def strip(text):
+    return text.rstrip('\n ')
+
+
+def chunk_text(text, cutoff, offset):
+    cutoff = cutoff - offset
+    split = text.split(' ')
+    join_str = '\n' + " "*offset
+    chunk = ''
+    chunked = []
+    while len(split):
+        word = split.pop(0)
+        if not chunk and len(word) < cutoff:
+            chunk = word
+        elif not chunk and len(word) > cutoff:
+            chunked.append(word)
+        elif len(chunk) + len(word) < cutoff:
+            chunk = "%s %s" % (chunk, word)
+        else:
+            chunked.append(chunk)
+            chunk = word
+    if chunk:
+        chunked.append(chunk)
+    return " "*offset + join_str.join(chunked)
