@@ -90,14 +90,11 @@ def format_grep(git_dir, formatting, regex, revlist, author, before, after):
     log_cmd = ['git', '--git-dir', git_dir, 'log', revlist, '-i', '-E', '--oneline', formatting]
 
     if author is not None:
-        log_cmd.append('--author')
-        log_cmd.append(author)
+        log_cmd.extend(['--author', author])
     if before is not None:
-        log_cmd.append('--before')
-        log_cmd.append(before)
+        log_cmd.extend(['--before', before])
     if after is not None:
-        log_cmd.append('--after')
-        log_cmd.append(after)
+        log_cmd.extend(['--after', after])
 
     log_cmd.extend(regex)
 
@@ -236,6 +233,7 @@ def parse_git(ptype, pattern, git_dir, revlist=None, author=None, before=None, a
         before: (Option) Date restriction on the revisions
         after: (Option) Date restriction on the revisions
     """
+
     if ptype == 'log':
         formatting = '--format=COMMIT: %h AUTHORDATE: %aD AUTHORNAME: %an AUTHOREMAIL: %ae LOG: %s %b'
         regex = ['--grep', pattern]
@@ -249,6 +247,9 @@ def parse_git(ptype, pattern, git_dir, revlist=None, author=None, before=None, a
 
     grep_cmd = format_grep(git_dir, formatting, regex, revlist, author, before, after)
     (out, err) = execute_cmd(grep_cmd)
+
+    if err:
+        print(style(err, 'red'))
 
     out = out.strip().split('COMMIT: ')
     for item in out[1:]:

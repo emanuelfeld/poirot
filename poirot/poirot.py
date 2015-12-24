@@ -22,6 +22,7 @@ class Poirot(object):
             client: ConsoleClient or ConsoleClientThin object
             case: Case object
         """
+
         self.meta = {'date': time.strftime('%Y-%m-%d %H:%M:%S %Z'),
                      'version': VERSION}
         self.client = client
@@ -34,12 +35,8 @@ class Poirot(object):
         what events (revisions) to consider. He will then gather
         (clone, pull, or locate) the information to go through.
         """
-        case = self.case
 
-        if case.revlist == 'all':
-            case.revlist = '--all'
-        elif case.revlist is None:
-            case.revlist = 'HEAD^!'
+        case = self.case
 
         if case.skip:
             print(style('Skipping clone or pull as --skip was found', 'blue'))
@@ -57,6 +54,7 @@ class Poirot(object):
         or revision subsets, for the patterns
         provided.
         """
+
         case = self.case
 
         try:
@@ -73,9 +71,10 @@ class Poirot(object):
                     "before": case.before,
                     "after": case.after
                 }
-                self.parse(pattern, parser_args)
+                self.parse('log', pattern, parser_args)
+                self.parse('diff', pattern, parser_args)
 
-    def parse(self, pattern, parser_args):
+    def parse(self, item_type, pattern, parser_args):
         """
         Call commit log and diff parsers on a revision
         or revision subset and add matching commit logs
@@ -83,12 +82,7 @@ class Poirot(object):
         """
         finding = self.findings[pattern]
 
-        for commit, metadata in parse_git('log', pattern, **parser_args):
-            if not hasattr(finding, commit):
-                finding[commit] = {}
-            finding[commit] = merge_dicts(finding[commit], metadata)
-
-        for commit, metadata in parse_git('diff', pattern, **parser_args):
+        for commit, metadata in parse_git(item_type, pattern, **parser_args):
             if not hasattr(finding, commit):
                 finding[commit] = {}
             finding[commit] = merge_dicts(finding[commit], metadata)
@@ -96,6 +90,7 @@ class Poirot(object):
     def report(self):
         """Render findings in the console"""
         self.client.render(self.findings, self.case.__dict__)
+        # pass
 
 
 class Case(object):
@@ -105,10 +100,15 @@ class Case(object):
         Sometimes the facts of a case come jumbled. Poirot sorts
         them out.
         """
-        input_parser = self.parser()
-        facts = input_parser.parse_args(args)
 
+        facts = self.parser().parse_args(args)
+
+        self.before = facts.before
+        self.after = facts.after
+        self.author = facts.author
+        self.skip = facts.skip
         self.dest = facts.dest
+
         self.git_url = facts.url.rstrip('/')
         self.repo_url = re.sub(r'\.git$', '', self.git_url)
 
@@ -117,14 +117,17 @@ class Case(object):
 
         self.repo_dir = '{}/{}'.format(self.dest, repo_name)
         self.git_dir = self.repo_dir + '/.git'
-        self.revlist = facts.revlist
-        self.term = facts.term
-        self.before = facts.before
-        self.after = facts.after
-        self.author = facts.author
-        self.skip = facts.skip
+
+        if facts.revlist == 'all':
+            self.revlist = '--all'
+        elif facts.revlist is None:
+            self.revlist = 'HEAD^!'
+        else:
+            self.revlist = facts.revlist
 
         self.patterns = set()
+        if facts.term:
+            self.patterns.add(facts.term)
 
         pfile_list = facts.patterns.strip().split(',')
         for pfile in pfile_list:
