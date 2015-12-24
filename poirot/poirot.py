@@ -2,6 +2,7 @@ import argparse
 import os
 import time
 import re
+from tqdm import tqdm
 
 from poirot.helpers import clone_pull, merge_dicts, parse_git
 from poirot.clients.style import style
@@ -62,7 +63,7 @@ class Poirot(object):
         except AttributeError:
             revisions = []
 
-        for pattern in case.patterns:
+        for pattern in tqdm(case.patterns):
             for revision in revisions:
                 parser_args = {
                     "git_dir": case.git_dir,
@@ -90,7 +91,6 @@ class Poirot(object):
     def report(self):
         """Render findings in the console"""
         self.client.render(self.findings, self.case.__dict__)
-        # pass
 
 
 class Case(object):
