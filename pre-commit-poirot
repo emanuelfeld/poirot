@@ -1,0 +1,53 @@
+#!/bin/sh
+
+function setup_poirot()
+{
+	# Output to stderr
+	exec 1>&2
+	# Allow user input
+	exec < /dev/tty
+}
+
+function setup_failure()
+{
+	# Don't invoke Poirot for commits made from GitHub Desktop GUI
+	echo "Couldn't set up Poirot to receive user input."
+	exit 0
+}
+
+function run_poirot()
+{
+	# Color codes for output
+	RED="\033[1;31m"
+	BLUE="\033[34m"
+	RESET="\033[0m"
+
+	# Run Poirot
+	echo "Running Poirot..."
+	remote_url=$(git config --get remote.origin.url)
+	little-grey-cells -u $remote_url --dest $(dirname $(pwd)) --pre
+
+	# Read sys.exit from Poirot
+	# Request input if match(es) found
+	if [ $? -eq 1 ]
+	then
+		echo "${RED}Some pattern matches were found in your staged changes. Are you sure want to commit? Choose an option #.${RESET}"
+		OPTIONS="Commit Cancel"
+		select opt in $OPTIONS; do 
+			if [ "$opt" = "Commit" ]; then
+				echo "${BLUE}Committing.${RESET}"
+				exit 0
+			elif [ "$opt" = "Cancel" ]; then
+				echo "${BLUE}Canceling commit. Go ahead and make any new changes.${RESET}"
+				exit 1
+			else
+				clear
+			fi
+		done
+	else
+		exit 0
+	fi
+}
+
+setup_poirot || setup_failure
+run_poirot
