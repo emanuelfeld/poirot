@@ -72,10 +72,10 @@ def clone_pull(git_url, repo_dir):
 
 def execute_cmd(cmd):
     """
-    Executes a (git) command
+    Executes a command
 
     Args:
-        cmd (list[str]): Git arguments
+        cmd (list[str]): Command arguments
     """
 
     popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
@@ -157,7 +157,7 @@ def validate_lines(diff, line_re, pattern_re):
             line_num += 1
 
 
-def parse_diff(git_dir, commit, pattern_re, deleted_re, line_re):
+def parse_diff(text, pattern_re, deleted_re, line_re):
     """
     Takes a single revision and pattern. Returns the files and lines
     in the revision that match the pattern.
@@ -176,11 +176,9 @@ def parse_diff(git_dir, commit, pattern_re, deleted_re, line_re):
     """
 
     files = []
-    show_cmd = ['git', '--git-dir', git_dir, 'show', commit, '--no-color', '--unified=0']
-    (out, err) = execute_cmd(show_cmd)
 
     try:
-        diff_list = out.split('diff --git ')[1:]
+        diff_list = text.split('diff --git ')[1:]
         for diff in diff_list:
             (fname, diff_lines) = split_diff(diff, deleted_re)
             matches = [m for m in validate_lines(diff_lines, line_re, pattern_re)]
@@ -219,7 +217,21 @@ def split_diff(diff, deleted):
         pass
 
 
-def parse_git(ptype, pattern, git_dir, revlist=None, author=None, before=None, after=None):
+def parse_pre(pattern, repo_dir):
+
+    pattern_re = re.compile(pattern, re.I)
+    deleted_re = re.compile(r'^deleted file')
+    line_re = re.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
+
+    cmd = ['git', 'diff', '--staged', '--unified=0', '--', repo_dir]
+    (out, err) = execute_cmd(cmd)
+
+    staged_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
+
+    return staged_diffs
+
+
+def parse_post(ptype, pattern, git_dir, revlist=None, author=None, before=None, after=None):
     """
     Sets up and farms out the parsing of revisions' commit messages and diffs.
 
@@ -248,16 +260,15 @@ def parse_git(ptype, pattern, git_dir, revlist=None, author=None, before=None, a
     grep_cmd = format_grep(git_dir, formatting, regex, revlist, author, before, after)
     (out, err) = execute_cmd(grep_cmd)
 
-    if err:
-        print(style(err, 'red'))
-
     out = out.strip().split('COMMIT: ')
     for item in out[1:]:
         sha, metadata = parse_metadata(item)
         if ptype == 'log':
             yield sha, metadata
         else:
-            file_diffs = parse_diff(git_dir, sha, pattern_re, deleted_re, line_re)
+            show_cmd = ['git', '--git-dir', git_dir, 'show', sha, '--no-color', '--unified=0']
+            (out, err) = execute_cmd(show_cmd)
+            file_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
             if file_diffs:
                 metadata['files'] = file_diffs
                 yield sha, metadata

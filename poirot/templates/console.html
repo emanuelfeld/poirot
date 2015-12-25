@@ -23,7 +23,14 @@
 Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
 {% for term in data %}{%if data[term]%} {{"Pattern"|style('bold')}}:  {{ term }}
-{% for commit in data[term]%}
+{% if info['pre']%} {% for file in data[term]%}
+  {{file['file']|style('darkgreen')|fail}}
+ {%for match in file['matches']%}
+    Line {{match['line']}}:
+{{match['text']|highlight(term)|chunk_text(80, 4)}} 
+{%endfor%} 
+{{"================================================================================="|style('gray')}}{%endfor%}
+{%else%}{% for commit in data[term]%}
 {{"---------------------------------------------------------------------------------"|style('gray')}}
   Commit {{ info['repo_url']|style('darkblue')}}{{"/commit/"|style('darkblue')}}{{ commit |style('darkblue')}}
   Author {{ data[term][commit]["author_name"]}}, {{ data[term][commit]["author_email"]|strip}}
@@ -39,12 +46,19 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {%endfor%}{%endfor%}
 {% endfor %}
 {{"================================================================================="|style('gray')}}
-{%endif%}{%- endfor %}
+{%endif%}{%endif%}{%- endfor %}
 
+{% if info['pre']%}
+{{'-------------------------------------------------------------------------------'|style('purple')}}
+{{'      Find something that shouldn\'t be there? Edit          '|style('purple')}}
+{{'                                                                               '|style('purple')}}
+{{'         https://help.github.com/articles/remove-sensitive-data                '|style('blue')}}
+{{'-------------------------------------------------------------------------------'|style('purple')}}
+{%else%}
 {{'-------------------------------------------------------------------------------'|style('purple')}}
 {{'      What do you do when you find something that shouldn\'t be there?         '|style('purple')}}
 {{'                                                                               '|style('purple')}}
 {{'         https://help.github.com/articles/remove-sensitive-data                '|style('blue')}}
 {{'-------------------------------------------------------------------------------'|style('purple')}}
-
+{%endif%}
 
