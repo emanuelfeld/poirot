@@ -1,6 +1,6 @@
 ## Public Domain
 
-This project is in the public domain within the United States. Additionally, the Government of the District of Columbia [and name here contractors whose works are incorporated in the initial commit to this repository] waives copyright and related rights in the work worldwide through the CC0 1.0 Universal public domain dedication.
+This project is in the public domain within the United States. Additionally, the Government of the District of Columbia waives copyright and related rights in the work worldwide through the CC0 1.0 Universal public domain dedication.
 
 ## CC0 1.0 Universal
 
