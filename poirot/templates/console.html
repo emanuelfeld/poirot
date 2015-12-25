@@ -48,17 +48,8 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
 {%endif%}{%endif%}{%- endfor %}
 
-{% if info['pre']%}
-{{'-------------------------------------------------------------------------------'|style('purple')}}
-{{'      Find something that shouldn\'t be there? Edit          '|style('purple')}}
-{{'                                                                               '|style('purple')}}
-{{'         https://help.github.com/articles/remove-sensitive-data                '|style('blue')}}
-{{'-------------------------------------------------------------------------------'|style('purple')}}
-{%else%}
 {{'-------------------------------------------------------------------------------'|style('purple')}}
 {{'      What do you do when you find something that shouldn\'t be there?         '|style('purple')}}
 {{'                                                                               '|style('purple')}}
 {{'         https://help.github.com/articles/remove-sensitive-data                '|style('blue')}}
 {{'-------------------------------------------------------------------------------'|style('purple')}}
-{%endif%}
-
