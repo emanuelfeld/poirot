@@ -5,7 +5,7 @@ import sys
 from tqdm import tqdm
 
 from .helpers import clone_pull, merge_dicts, parse_post, parse_pre
-from .clients.style import style
+from .style import style
 
 
 class Poirot(object):
@@ -35,7 +35,7 @@ class Poirot(object):
 
         case = self.case
 
-        if case.pre:
+        if case.staged:
             pass
         elif case.skip:
             print(style('Skipping clone or pull as --skip was found', 'blue'))
@@ -56,7 +56,7 @@ class Poirot(object):
 
         case = self.case
 
-        if case.pre:
+        if case.staged:
             for p in case.patterns:
                 self.findings[p] = parse_pre(p, case.repo_dir)
 
@@ -64,13 +64,13 @@ class Poirot(object):
             for pattern in tqdm(case.patterns):
                 for revision in case.revlist:
                     parser_args = {
-                        "git_dir": case.git_dir,
-                        "revlist": revision,
-                        "author": case.author,
-                        "before": case.before,
-                        "after": case.after
+                        'git_dir': case.git_dir,
+                        'revlist': revision,
+                        'author': case.author,
+                        'before': case.before,
+                        'after': case.after
                     }
-                    self.parse_post('log', pattern, parser_args)
+                    self.parse_post('message', pattern, parser_args)
                     self.parse_post('diff', pattern, parser_args)
 
     def parse_post(self, item_type, pattern, parser_args):
@@ -79,6 +79,7 @@ class Poirot(object):
         or revision subset and add matching commit logs
         and diffs to findings.
         """
+
         finding = self.findings[pattern]
 
         for commit, metadata in parse_post(item_type, pattern, **parser_args):
@@ -88,6 +89,7 @@ class Poirot(object):
 
     def report(self):
         """Render findings in the console"""
+
         found_evidence = any(f for f in self.findings.values())
         if found_evidence:
             self.client.render(self.findings, self.case.__dict__)
@@ -112,20 +114,14 @@ class Case(object):
         self.author = facts.author
         self.skip = facts.skip
         self.dest = facts.dest
-        self.pre = facts.pre
+        self.staged = facts.staged
         self.git_url = facts.url.rstrip('/')
         self.repo_url = re.sub(r'\.git$', '', self.git_url)
-
-        repo = self.git_url.rsplit('/', 1)[1]
-        repo_name = re.sub(r'\.git$', '', repo)
-
-        self.repo_dir = '{}/{}'.format(self.dest, repo_name)
+        self.repo_dir = self.dest
         self.git_dir = self.repo_dir + '/.git'
 
         if facts.revlist == 'all':
             self.revlist = ['--all']
-        elif facts.revlist is None:
-            self.revlist = ['HEAD^!']
         else:
             self.revlist = facts.revlist.strip().split(',')
 
@@ -140,12 +136,7 @@ class Case(object):
 
     def add_patterns(self, file_path):
         """
-        Args:
-            file_path: Path to a file with patterns separated by newlines.
-
-        Yields:
-            line: A line in the pattern file that is neither blank, nor
-                commented out.
+        Takes a pattern file's path and yields its patterns
         """
 
         try:
@@ -155,69 +146,74 @@ class Case(object):
                     if line and not line.startswith('#'):
                         yield line
         except IOError:
-            raise IOError('Pattern file {} does not exist.\nSpecify '
-                          'the correct file path with '
-                          '--patterns'.format(file_path))
+            raise IOError("""Pattern file {} does not exist.\nSpecify
+                          the correct file path with
+                          --patterns""".format(file_path))
 
-    def parser(self, _dir=os.path.dirname(__file__),
-               _patterns='patterns/default.txt',
-               _temp='../temp'):
+    def parser(self):
 
-        query = argparse.ArgumentParser(prog="poirot",
-                                        description="Poirot: Mind Your PII")
+        _script_dir = os.path.dirname(__file__)
+        _pattern_file = 'patterns/default.txt'
+
+        query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
+                                        Mind Your Language""")
         query.add_argument('--url', '-u',
-                           dest="url",
+                           dest='url',
                            required=True,
                            action="store",
-                           help="The fully qualified git URL.")
-        query.add_argument('--pre',
-                           dest="pre",
-                           action="store_true",
-                           help="Pre-commit?")
+                           help="""The repository's git URL,
+                                e.g. 'https://github.com/dcgov/poirot.git'.""")
         query.add_argument('--dest', '-d',
-                           dest="dest",
-                           default=os.path.join(_dir, _temp),
-                           help="""Path to the local directory where the
-                                git repo is located or should be stored.
-                                Default: clouseau/temp""")
+                           dest='dest',
+                           default=os.getcwd(),
+                           help="""The path to the local directory where the
+                                git repo is located or should be stored;
+                                defaults to the current directory.""")
         query.add_argument('--term', '-t',
                            dest="term",
                            required=False,
-                           action="store",
-                           help="Search for a single regular expression.")
+                           action='store',
+                           help="""A single string or regular expression
+                                to search for.""")
         query.add_argument('--patterns', '-p',
                            dest="patterns",
                            action="store",
-                           default=os.path.join(_dir, _patterns),
-                           help="""Path to .txt file containing regular expressions
-                                to match against, each on a new line.
-                                Accepts a comma-separated list of file
-                                paths.""")
+                           default=os.path.join(_script_dir, _pattern_file),
+                           help="""The path to the local file(s) containing strings
+                                or regular expressions to match against, each
+                                on a new line. Accepts a comma-separated list
+                                of file paths.""")
         query.add_argument('--revlist', '-rl',
-                           dest="revlist",
+                           dest='revlist',
                            required=False,
-                           help="""A comma-delimited list of revisions (commits)
-                                to search. Defaults to HEAD^!. Specify 'all'
-                                to search the entire revision history.""")
+                           default='HEAD^!',
+                           help="""A comma-delimited list of revision (commit)
+                                ranges to search. Defaults to HEAD^!. Specify
+                                'all' to search the entire revision
+                                history.""")
         query.add_argument('--before', '-b',
                            dest='before',
                            required=False,
                            help="""Search commits prior to a given date,
                                 e.g., Dec-12-2015""")
         query.add_argument('--after', '-a',
-                           dest="after",
+                           dest='after',
                            required=False,
                            help="""Search commits after a given date,
                                 e.g., Jan-01-2015""")
-        query.add_argument('--author',
-                           dest="author",
+        query.add_argument('--author', '-au',
+                           dest='author',
                            required=False,
-                           help="""Restrict to commits made by AUTHOR. An email
+                           help="""Restrict to commits made by an AUTHOR. An email
                                 address is fine.""")
         query.add_argument('--skip', '-s',
-                           dest="skip",
-                           action="store_true",
-                           help="""If specified, skips any calls to git-clone or
-                                git-pull. Useful in combination with --dest to
-                                test a local git repo""")
+                           dest='skip',
+                           action='store_true',
+                           help="""Flag to skip any calls to git-clone or
+                                git-pull.""")
+        query.add_argument('--staged', '-st',
+                           dest='staged',
+                           action='store_true',
+                           help="""Flag to Search staged modifications, instead of
+                                already committed ones.""")
         return query

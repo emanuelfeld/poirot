@@ -1,6 +1,6 @@
 import sys
 from poirot.poirot import Poirot, Case
-from poirot.clients.console import ConsoleClient 
+from poirot.clients import ConsoleClient 
 
 if __name__ == '__main__':
     sys.argv.pop(0)
