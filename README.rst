@@ -39,8 +39,6 @@ To invoke Poirot and see his findings, call him from the command line with :code
 * **--after**: Date restriction on revisions. Default value: none.
 * **--author**: Authorship restriction on revisions. Default value: none.
 
-.. image:: https://cloud.githubusercontent.com/assets/4269640/12029422/b18daea6-adb8-11e5-94d8-e2e733332a4e.png
-
 Examples
 _________
 Clone or pull the foo/baz repository to the current working directory. Search the last commit made for the patterns in :code:`default.txt`.
