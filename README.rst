@@ -2,6 +2,12 @@
 Poirot
 ======
 
+Poirot helps you investigate your repositories. Give him a set of clues (e.g. strings or regular expressions) and he will report back any instances they have occurred in your repository's revision history.
+
+When used as a pre-commit hook, Poirot can warn you if you're about to commit something you might not intend (think passwords, private keys, tokens, and other bits of sensitive or personally identifiable information).
+
+Poirot began as a fork of CFPB's fellow gumshoe, `Clouseau <https://github.com/cfpb/clouseau>`_.
+
 Dependencies
 =============
 * git
