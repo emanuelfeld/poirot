@@ -9,9 +9,8 @@ Poirot
 
 # Installation
 
-```
-pip install poirot
-```
+.. code::bash
+  pip install poirot
 
 # Options
 
@@ -24,6 +23,8 @@ pip install poirot
 * **--before**: Date restriction on revisions. Default value: none.
 * **--after**: Date restriction on revisions. Default value: none.
 * **--author**: Authorship restriction on revisions. Default value: none.
+
+.. image:: https://cloud.githubusercontent.com/assets/4269640/12029422/b18daea6-adb8-11e5-94d8-e2e733332a4e.png
 
 # Examples
 
