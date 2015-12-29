@@ -98,6 +98,7 @@ Using Poirot as a Pre-Commit Hook
 To set up a pre-commit hook for a particular repository, run the following from the repository's directory:
 
 .. code:: bash
+
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
     open -a TextEdit .git/hooks/pre-commit
@@ -105,6 +106,7 @@ To set up a pre-commit hook for a particular repository, run the following from 
 Then edit this line to refer to the correct patterns file(s):
 
 .. code:: bash
+
     little-grey-cells --dir $(dirname $(pwd)) --staged --patterns=""
 
 Now, whenever you try to commit changes, Poirot will run and warn you if your changes contain any of the patterns you have included.
