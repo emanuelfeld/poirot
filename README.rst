@@ -2,19 +2,20 @@
 Poirot
 ======
 
-# Dependencies
-
+Dependencies
+=============
 * git
-* Python 2.7, 3.3+
+* Python 2.7 or 3.3+
 
-# Installation
+Installation
+=============
+.. code:: bash
 
-.. code::bash
   pip install poirot
 
-# Options
-
-* **--url**: The repository's URL, e.g. `https://github.com/DCgov/poirot.git` or `git@github.com:DCgov/poirot.git`. Default value: none.
+Options
+=============
+* **--url**: The repository's URL, e.g. :code:`https://github.com/DCgov/poirot.git` or :code:`git@github.com:DCgov/poirot.git`. Default value: none.
 * **--dir**: The local path to your repository's base directory. Default value: the current working directory.
 * **--term**: A single term or regular expression to search for. Default value: none.
 * **--patterns**: The path to a .txt file with strings or regular expression patterns, each on its own line. You can give a comma-separated list of pattern files, if you wish to include more than one. Default value: `default.txt`.
@@ -26,46 +27,49 @@ Poirot
 
 .. image:: https://cloud.githubusercontent.com/assets/4269640/12029422/b18daea6-adb8-11e5-94d8-e2e733332a4e.png
 
-# Examples
+Examples
+=============
+Clone or pull the foo/baz repository to the current working directory. Search the last commit made for the patterns in :code:`default.txt`.
 
-Clone or pull the foo/baz repository to the current working directory. Search the last commit made for the patterns in `default.txt`.
+.. code:: bash
 
-```
-$ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt'
-```
+  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt'
 
 ...clone or pull instead to the `here` directory.
 
-```
-$ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --dir here
-```
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --dir here
 
 ...search all commits made to the current branch.
 
-```
-$ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
-```
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
 
 ...search all commits made to the current branch.
 
-```
-$ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
-```
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
+
 
 ...search all commits made to the current branch with author Poirot.
 
-```
-$ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all" --author="Poirot"
-```
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all" --author="Poirot"
 
 ...search all staged revisions in the current git repository.
 
-```
-$ big-grey-cells --staged --patterns='patterns/default.txt'
-```
+.. code:: bash
+
+  $ big-grey-cells --staged --patterns='patterns/default.txt'
+
 
 ...search staged revisions for the term `password`.
 
-```
-$ big-grey-cells --staged --term="password"
-```
+.. code:: bash
+
+  $ big-grey-cells --staged --term="password"
+
