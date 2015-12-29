@@ -8,11 +8,10 @@ When used as a pre-commit hook, Poirot can warn you if you're about to commit so
 
 Poirot began as a fork of CFPB's fellow gumshoe, `Clouseau <https://github.com/cfpb/clouseau>`_.
 
-1. Dependencies
-2. Installing Poirot
-3. Invoking Poirot
-4. Examples
-5. Using Poirot as a pre-commit hook
+1. `Dependencies`_
+2. `Installation`_
+3. `Running Poirot`_
+4. `Using Poirot as a Pre-Commit Hook`_
 
 Dependencies
 =============
@@ -21,11 +20,15 @@ Dependencies
 
 Installation
 =============
+Poirot is available on PyPi and can be installed with pip as:
+
 .. code:: bash
 
   pip install poirot
 
-Options
+You may want to install it in a virtual environment.
+
+Running Poirot
 =============
 To invoke Poirot and see his findings, call him from the command line with :code:`big-grey-cells` (wordy, colorful output) or :code:`little-grey-cells` (minimalistic output) and with the following optional arguments:
 
@@ -41,47 +44,54 @@ To invoke Poirot and see his findings, call him from the command line with :code
 
 Examples
 _________
-Clone or pull the foo/baz repository to the current working directory. Search the last commit made for the patterns in :code:`default.txt`.
+Note: in all of the following examples, :code:`big-grey-cells` could be substituted for :code:`little-grey-cells`.
+
+The most basic command Poirot will accept is:
 
 .. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt'
+  $ big-grey-cells --term="thisisaterm"
 
-...clone or pull instead to the `here` directory.
+That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the pattern :code:`thisisaterm`.
 
-.. code:: bash
-
-  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --dir here
-
-...search all commits made to the current branch.
+To include a whole file of patterns, do this instead:
 
 .. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
+  $ big-grey-cells --patterns='thisisapatternfile.txt'
 
-...search all commits made to the current branch.
-
-.. code:: bash
-
-  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all"
-
-
-...search all commits made to the current branch with author Poirot.
+Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
 
 .. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --patterns='patterns/default.txt' --revlist="all" --author="Poirot"
-
-...search all staged revisions in the current git repository.
-
-.. code:: bash
-
-  $ big-grey-cells --staged --patterns='patterns/default.txt'
+  $ big-grey-cells --term="thisisaterm" --revlist="all"
 
 
-...search staged revisions for the term `password`.
+You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
 .. code:: bash
 
-  $ big-grey-cells --staged --term="password"
+  $ big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
+
+Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
+
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
+
+You can also specify a different directory than the current one with :code:`dir`. The following command will clone/pull to the folder :code:`thisotherfolder`, which sits inside of the current directory. If it does not yet exist, it will be created.
+
+.. code:: bash
+
+  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
+
+To search changes that have been staged for commit, but not yet committed, use the :code:`staged` flag:
+
+.. code:: bash
+
+  $ big-grey-cells --term="thisisaterm" --staged
+
+
+Using Poirot as a Pre-Commit Hook
+=============
