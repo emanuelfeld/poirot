@@ -1,1 +1,2 @@
 include poirot/patterns/*.txt
+include poirot/templates/*.html

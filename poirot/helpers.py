@@ -3,7 +3,7 @@ import sys
 import argparse
 import re
 import subprocess
-from poirot.style import style
+from .style import style
 
 
 def ask(question, options, formatting=None):
@@ -22,6 +22,9 @@ def ask(question, options, formatting=None):
     """
 
     response = ""
+
+    if sys.version_info[:2] <= (2, 7):
+        input = raw_input
     prompt = '{} [{}] '.format(question, ', '.join(options))
     while response not in options:
         response = input(style(prompt, formatting))

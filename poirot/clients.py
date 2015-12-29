@@ -3,7 +3,7 @@ import subprocess
 
 from abc import ABCMeta, abstractmethod
 from jinja2 import Environment, PackageLoader
-from poirot.style import fail, ok, highlight, style, chunk_text, strip
+from .style import fail, ok, highlight, style, chunk_text, strip
 
 
 class AbstractClient:
