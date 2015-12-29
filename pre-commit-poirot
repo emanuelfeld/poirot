@@ -25,7 +25,7 @@ function run_poirot()
 	# Run Poirot
 	echo "Running Poirot..."
 	remote_url=$(git config --get remote.origin.url)
-	little-grey-cells -u $remote_url --dest $(dirname $(pwd)) --pre
+	little-grey-cells --dir $(dirname $(pwd)) --staged
 
 	# Read sys.exit from Poirot
 	# Request input if match(es) found

@@ -15,7 +15,7 @@
 Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
 {% for term in data %}{%if data[term]%} {{"Pattern"|style('bold')}}:  {{ term }}
-{% if info['pre']%} {% for file in data[term]%}
+{% if info['staged']%} {% for file in data[term]%}
   {{file['file']|style('darkgreen')|fail}}
  {%for match in file['matches']%}
     Line {{match['line']}}:

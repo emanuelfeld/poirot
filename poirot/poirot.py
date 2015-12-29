@@ -36,15 +36,16 @@ class Poirot(object):
         case = self.case
 
         if case.staged:
-            pass
-        elif case.skip:
-            print(style('Skipping clone or pull as --skip was found', 'blue'))
+            print(style('Investigating staged revisions', 'blue'))
+
+        if case.git_url:
+            clone_pull(case.git_url, case.repo_dir)
+        else:
+            print(style('Investigating local revisions', 'blue'))
             if not os.path.exists(case.git_dir):
                 raise IOError('Invalid .git directory: {}\nSpecify '
                               'the correct local directory with '
-                              '--dest'.format(case.git_dir))
-        else:
-            clone_pull(case.git_url, case.repo_dir)
+                              '--dir'.format(case.git_dir))
 
     def investigate(self):
         """
@@ -112,13 +113,11 @@ class Case(object):
         self.before = facts.before
         self.after = facts.after
         self.author = facts.author
-        self.skip = facts.skip
-        self.dest = facts.dest
         self.staged = facts.staged
         self.git_url = facts.url.rstrip('/')
         self.repo_url = re.sub(r'\.git$', '', self.git_url)
-        self.repo_dir = self.dest
-        self.git_dir = self.repo_dir + '/.git'
+        self.repo_dir = facts.dir
+        self.git_dir = facts.dir + '/.git'
 
         if facts.revlist == 'all':
             self.revlist = ['--all']
@@ -129,10 +128,17 @@ class Case(object):
         if facts.term:
             self.patterns.add(facts.term)
 
-        pfile_list = facts.patterns.strip().split(',')
-        for pfile in pfile_list:
-            file_patterns = set([p for p in self.add_patterns(pfile)])
-            self.patterns.update(file_patterns)
+        try:
+            pfile_list = facts.patterns.strip().split(',')
+            for pfile in pfile_list:
+                file_patterns = set([p for p in self.add_patterns(pfile)])
+                self.patterns.update(file_patterns)
+        except AttributeError:
+            pass
+
+        if len(self.patterns) == 0:
+            print(style('No patterns given! Include some using --term or --patterns', 'red'))
+            sys.exit(1)
 
     def add_patterns(self, file_path):
         """
@@ -151,20 +157,16 @@ class Case(object):
                           --patterns""".format(file_path))
 
     def parser(self):
-
-        _script_dir = os.path.dirname(__file__)
-        _pattern_file = 'patterns/default.txt'
-
         query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
                                         Mind Your Language""")
         query.add_argument('--url', '-u',
                            dest='url',
-                           required=True,
+                           default='',
                            action="store",
                            help="""The repository's git URL,
                                 e.g. 'https://github.com/dcgov/poirot.git'.""")
-        query.add_argument('--dest', '-d',
-                           dest='dest',
+        query.add_argument('--dir', '-d',
+                           dest='dir',
                            default=os.getcwd(),
                            help="""The path to the local directory where the
                                 git repo is located or should be stored;
@@ -178,7 +180,7 @@ class Case(object):
         query.add_argument('--patterns', '-p',
                            dest="patterns",
                            action="store",
-                           default=os.path.join(_script_dir, _pattern_file),
+                           default=False,
                            help="""The path to the local file(s) containing strings
                                 or regular expressions to match against, each
                                 on a new line. Accepts a comma-separated list
@@ -206,11 +208,6 @@ class Case(object):
                            required=False,
                            help="""Restrict to commits made by an AUTHOR. An email
                                 address is fine.""")
-        query.add_argument('--skip', '-s',
-                           dest='skip',
-                           action='store_true',
-                           help="""Flag to skip any calls to git-clone or
-                                git-pull.""")
         query.add_argument('--staged', '-st',
                            dest='staged',
                            action='store_true',

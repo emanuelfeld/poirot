@@ -1,7 +1,7 @@
 Poirot reporting back on {{ info['repo_url'] }}
 {% for term in data %}{% if data[term] %}
 Pattern: {{term}}
-{% if info['pre']%}{% for file in data[term]%}
+{% if info['staged']%}{% for file in data[term]%}
   File: {{file['file']}}
 {%for match in file['matches']%}
     Line {{match['line']}}
@@ -10,8 +10,10 @@ Pattern: {{term}}
 {% for commit in data[term] %}
  Commit: {{info['repo_url']}}/commit/{{commit}}
  Author: {{data[term][commit]['author_name']}}, {{data[term][commit]['author_email']|strip}}
- Date: {{data[term][commit]['author_date']}}
-{% for file in data[term][commit]['files']%}
+ Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["log"]%}
+  Commit Message
+  {{data[term][commit]["log"]|chunk_text(80, 4)}}
+  {%endif%}{% for file in data[term][commit]['files']%}
   File: {{file['file']}}
 {%for match in file['matches']%}
     Line {{match['line']}}
