@@ -8,19 +8,11 @@ When used as a pre-commit hook, Poirot can warn you if you're about to commit so
 
 Poirot began as a fork of CFPB's fellow gumshoe, `Clouseau <https://github.com/cfpb/clouseau>`_.
 
-1. `Dependencies`_
-2. `Installation`_
-3. `Running Poirot`_
-4. `Using Poirot as a Pre-Commit Hook`_
-
-.. image:: https://raw.githubusercontent.com/DCgov/poirot/master/assets/example1.gif
-
 Dependencies
 =============
 * git
 * Python 2.7 or 3.3+
 * a Unix-based OS (e.g. Mac or Linux) or a UNIX-y shell on Windows (e.g. `Cygwin <https://www.cygwin.com/>`_, `Babun <http://babun.github.io/>`_, or `Git-Bash <https://git-for-windows.github.io/>`_)
-
 
 Poirot uses these Python packages:
 
@@ -32,14 +24,14 @@ Installation
 =============
 Poirot is available on PyPi and can be `installed with pip <https://pip.pypa.io/en/stable/installing/>`_ as:
 
-.. code:: bash
+.. code-block:: bash
 
   pip install poirot
 
 You may want to install it in a virtual environment.
 
 Running Poirot
-=============
+===============
 To invoke Poirot and see his findings, call him from the command line with :code:`big-grey-cells` (for wordy, colorful output) or :code:`little-grey-cells` (for minimalistic output) and with the following optional arguments:
 
 * **--url**: The repository's URL, e.g. :code:`https://github.com/DCgov/poirot.git` or :code:`git@github.com:DCgov/poirot.git`. When included, you will be given the choice to clone or pull from the remote URL. Default value: none.
@@ -58,7 +50,7 @@ Note: in all of the following examples, :code:`big-grey-cells` could be substitu
 
 The most basic command Poirot will accept is:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --term="thisisaterm"
 
@@ -66,63 +58,38 @@ That will search the current git directory's last commit (i.e. :code:`HEAD^!`) f
 
 To include a whole file of patterns, do this instead:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --patterns='thisisapatternfile.txt'
 
 Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --term="thisisaterm" --revlist="all"
 
 
 You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
 
 Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
 
 You can also specify a different directory than the current one with :code:`dir`. The following command will clone/pull to the folder :code:`thisotherfolder`, which sits inside of the current directory. If it does not yet exist, it will be created.
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
 
 To search changes that have been staged for commit, but not yet committed, use the :code:`staged` flag:
 
-.. code:: bash
+.. code-block:: bash
 
   $ big-grey-cells --term="thisisaterm" --staged
-
-
-Using Poirot as a Pre-Commit Hook
-=============
-For a Single Repository
-_________
-To set up a pre-commit hook for a particular repository, run the following from the repository's root directory:
-
-.. code:: bash
-
-    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit
-    chmod +x .git/hooks/pre-commit
-    open -a TextEdit .git/hooks/pre-commit
-
-Then edit this line to refer to the correct patterns file(s):
-
-.. code:: bash
-
-    little-grey-cells --dir $(dirname $(pwd)) --staged --patterns=""
-
-Now, whenever you try to commit changes, Poirot will run and warn you if your changes contain any of the patterns you have included. If he finds something, he will give you the option to cancel your commit. Then you can fix anything amiss and re-commit.
-
-For All Repositories
-_________
-

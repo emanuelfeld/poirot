@@ -4,11 +4,13 @@ except ImportError:
     from distutils.core import setup
 
 
-with open('README.rst') as file:
+with open('README_PYPI.rst') as file:
     long_description = file.read()
 
 setup(name='poirot',
-	  version='0.0.16',
+	  version='0.0.17.1',
+	  author='Emanuel Feld',
+	  author_email='elefbet@gmail.com',
 	  description="Investigate a Git repository's revision history to find text patterns.",
 	  long_description=long_description,
 	  url='https://github.com/dcgov/poirot',
