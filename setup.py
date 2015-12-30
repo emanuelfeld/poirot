@@ -3,13 +3,18 @@ try:
 except ImportError:
     from distutils.core import setup
 
+
+with open('README.rst') as file:
+    long_description = file.read()
+
 setup(name='poirot',
-	  version='0.0.15',
-	  description="Search a git repository's revision history for text patterns.",
+	  version='0.0.16',
+	  description="Investigate a Git repository's revision history to find text patterns.",
+	  long_description=long_description,
 	  url='https://github.com/dcgov/poirot',
 	  license='https://raw.githubusercontent.com/DCgov/poirot/master/LICENSE.md',
 	  packages=['poirot'],
-	  install_requires=['tqdm', 'Jinja2', 'regex'],
+	  install_requires=['tqdm>=3.4.0', 'Jinja2>=2.8', 'regex>=2015.11.22'],
 	  test_suite='nose.collector',
 	  tests_require=['nose-progressive'],
 	  classifiers=[
@@ -22,5 +27,10 @@ setup(name='poirot',
 		'Programming Language :: Python :: 3.5'
 	  ],
 	  include_package_data=True,
-	  scripts=['bin/big-grey-cells', 'bin/little-grey-cells'],
+	  entry_points = {
+	  	'console_scripts': [
+	  		'little-grey-cells=poirot.commands:littlegreycells',
+	  		'big-grey-cells=poirot.commands:biggreycells'
+	  		]
+	  },
 	  zip_safe=False)
