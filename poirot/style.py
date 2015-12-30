@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import re
+import regex
 
 
 # Python character unicode
@@ -64,8 +64,8 @@ def fail(text=''):
 def highlight(text, pattern):
     """Takes a string and highlights substrings matching a pattern"""
 
-    regx = re.compile(pattern, flags=re.I)
-    match = regx.search(text)
+    pattern_re = regex.compile(pattern, regex.I)
+    match = pattern_re.search(text)
     if match:
         text = text.replace(match.group(0), style(match.group(0), 'red'))
     return text
