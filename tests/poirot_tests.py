@@ -7,7 +7,7 @@ from poirot.helpers import *
 
 def setUp():
     global case, poirot
-    args = ['-u', 'git@github.com:DCgov/poirot-test-repo.git', '--revlist=all', '--dest=tests/fixtures', '--patterns=tests/test_patterns.txt', '--term', 'frabjous', '--skip']
+    args = ['-u', 'git@github.com:DCgov/poirot-test-repo.git', '--revlist=all', '--dir=tests/fixtures', '--patterns=tests/test_patterns.txt', '--term', 'frabjous']
     case = Case(args)
     case_parser_test()
     client = ConsoleClient()
@@ -22,7 +22,7 @@ def tearDown():
 
 
 def case_parser_test():
-    eq_(len(case.__dict__), 12)
+    eq_(len(case.__dict__), 10)
     eq_(len(case.patterns), 8)
     eq_(case.revlist, ['--all'])
     eq_(case.git_url, 'git@github.com:DCgov/poirot-test-repo.git')
