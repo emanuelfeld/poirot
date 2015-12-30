@@ -13,14 +13,22 @@ Poirot began as a fork of CFPB's fellow gumshoe, `Clouseau <https://github.com/c
 3. `Running Poirot`_
 4. `Using Poirot as a Pre-Commit Hook`_
 
+.. image:: https://raw.githubusercontent.com/DCgov/poirot/master/assets/example1.gif
+
 Dependencies
 =============
 * git
 * Python 2.7 or 3.3+
 
+Poirot also uses these Python packages:
+
+* `Jinja2 <https://pypi.python.org/pypi/Jinja2/>`_ to format its console output
+* `tqdm <https://pypi.python.org/pypi/tqdm/>`_ to display a progress bar
+* `regex <https://pypi.python.org/pypi/regex/>`_ to allow for POSIX ERE regular expressions
+
 Installation
 =============
-Poirot is available on PyPi and can be installed with pip as:
+Poirot is available on PyPi and can be `installed with pip <https://pip.pypa.io/en/stable/installing/>`_ as:
 
 .. code:: bash
 
@@ -30,7 +38,7 @@ You may want to install it in a virtual environment.
 
 Running Poirot
 =============
-To invoke Poirot and see his findings, call him from the command line with :code:`big-grey-cells` (wordy, colorful output) or :code:`little-grey-cells` (minimalistic output) and with the following optional arguments:
+To invoke Poirot and see his findings, call him from the command line with :code:`big-grey-cells` (for wordy, colorful output) or :code:`little-grey-cells` (for minimalistic output) and with the following optional arguments:
 
 * **--url**: The repository's URL, e.g. :code:`https://github.com/DCgov/poirot.git` or :code:`git@github.com:DCgov/poirot.git`. When included, you will be given the choice to clone or pull from the remote URL. Default value: none.
 * **--dir**: The local path to your repository's base directory or the directory you would like to clone or pull to. Default value: the current working directory.
@@ -95,7 +103,9 @@ To search changes that have been staged for commit, but not yet committed, use t
 
 Using Poirot as a Pre-Commit Hook
 =============
-To set up a pre-commit hook for a particular repository, run the following from the repository's directory:
+For a Single Repository
+_________
+To set up a pre-commit hook for a particular repository, run the following from the repository's root directory:
 
 .. code:: bash
 
@@ -109,4 +119,8 @@ Then edit this line to refer to the correct patterns file(s):
 
     little-grey-cells --dir $(dirname $(pwd)) --staged --patterns=""
 
-Now, whenever you try to commit changes, Poirot will run and warn you if your changes contain any of the patterns you have included.
+Now, whenever you try to commit changes, Poirot will run and warn you if your changes contain any of the patterns you have included. If he finds something, he will give you the option to cancel your commit. Then you can fix anything amiss and re-commit.
+
+For All Repositories
+_________
+
