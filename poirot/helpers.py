@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-import re
+import regex
 import subprocess
 from .style import style
 
@@ -87,9 +87,9 @@ def parse_pre(pattern, repo_dir):
         pattern: A single text pattern to search for.
         repo_dir: The local path the repo's base directory.
     """
-    pattern_re = re.compile(pattern, re.I)
-    deleted_re = re.compile(r'^deleted file')
-    line_re = re.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
+    pattern_re = regex.compile(pattern, regex.I)
+    deleted_re = regex.compile(r'^deleted file')
+    line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
     cmd = ['git', 'diff', '--staged', '--unified=0', '--', repo_dir]
     (out, err) = execute_cmd(cmd)
@@ -120,9 +120,9 @@ def parse_post(target, pattern, git_dir, revlist=None, author=None, before=None,
             information.
     """
 
-    pattern_re = re.compile(pattern, re.I)
-    deleted_re = re.compile(r'^deleted file')
-    line_re = re.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
+    pattern_re = regex.compile(pattern, regex.I)
+    deleted_re = regex.compile(r'^deleted file')
+    line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
     out = get_matching_revisions(git_dir, revlist, target, pattern, author, before, after)
 
@@ -270,7 +270,7 @@ def parse_diff_lines(diff, line_re, pattern_re):
         if not line:
             pass
         elif line[0] == "@":
-            line_num = int(re.sub(line_re, r'\1', line))
+            line_num = int(regex.sub(line_re, r'\1', line))
         elif line[0] == "+":
             if pattern_re.search(line):
                 yield {"line": line_num, "text": line[1:].strip()}

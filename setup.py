@@ -9,7 +9,7 @@ setup(name='poirot',
 	  url='https://github.com/dcgov/poirot',
 	  license='https://raw.githubusercontent.com/DCgov/poirot/master/LICENSE.md',
 	  packages=['poirot'],
-	  install_requires=['tqdm==3.4.0', 'Jinja2==2.8'],
+	  install_requires=['tqdm', 'Jinja2', 'regex'],
 	  test_suite='nose.collector',
 	  tests_require=['nose-progressive'],
 	  classifiers=[

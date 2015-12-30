@@ -1,6 +1,6 @@
 import argparse
 import os
-import re
+import regex
 import sys
 from tqdm import tqdm
 
@@ -115,7 +115,7 @@ class Case(object):
         self.author = facts.author
         self.staged = facts.staged
         self.git_url = facts.url.rstrip('/')
-        self.repo_url = re.sub(r'\.git$', '', self.git_url)
+        self.repo_url = regex.sub(r'\.git$', '', self.git_url)
         self.repo_dir = facts.dir
         self.git_dir = facts.dir + '/.git'
 
