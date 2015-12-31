@@ -12,6 +12,7 @@ Poirot began as a fork of CFPB's fellow gumshoe, `Clouseau <https://github.com/c
 2. `Installation`_
 3. `Running Poirot`_
 4. `Using Poirot as a Pre-Commit Hook`_
+5. `Getting Involved`_
 
 .. image:: https://raw.githubusercontent.com/DCgov/poirot/master/assets/example1.gif
 
@@ -60,7 +61,7 @@ The most basic command Poirot will accept is:
 
 .. code:: bash
 
-  $ big-grey-cells --term="thisisaterm"
+  big-grey-cells --term="thisisaterm"
 
 That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the pattern :code:`thisisaterm`.
 
@@ -68,52 +69,52 @@ To include a whole file of patterns, do this instead:
 
 .. code:: bash
 
-  $ big-grey-cells --patterns='thisisapatternfile.txt'
+  big-grey-cells --patterns='thisisapatternfile.txt'
 
 Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
 
 .. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --revlist="all"
+  big-grey-cells --term="thisisaterm" --revlist="all"
 
 
 You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
 .. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
+  big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
 
 Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
 
 .. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
+  big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
 
 You can also specify a different directory than the current one with :code:`dir`. The following command will clone/pull to the folder :code:`thisotherfolder`, which sits inside of the current directory. If it does not yet exist, it will be created.
 
 .. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
+  big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
 
 To search changes that have been staged for commit, but not yet committed, use the :code:`staged` flag:
 
 .. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --staged
+  big-grey-cells --term="thisisaterm" --staged
 
 
 Using Poirot as a Pre-Commit Hook
-=============
+==================================
 For a Single Repository
-_________
+_______________________
 To set up a pre-commit hook for a particular repository, run the following from the repository's root directory:
 
 .. code:: bash
 
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
-    open -a TextEdit .git/hooks/pre-commit
+    vim .git/hooks/pre-commit
 
 Then edit this line to refer to the correct patterns file(s):
 
@@ -124,5 +125,43 @@ Then edit this line to refer to the correct patterns file(s):
 Now, whenever you try to commit changes, Poirot will run and warn you if your changes contain any of the patterns you have included. If he finds something, he will give you the option to cancel your commit. Then you can fix anything amiss and re-commit.
 
 For All Repositories
-_________
+_____________________
+To set a global pre-commit hook using Poirot, you can use the `init.templatedir <https://git-scm.com/docs/git-init>`_ configuration variable. Then, whenever you :code:`git init` a repository, Poirot will be set to run (this also works retroactively on existing repositories). 
 
+.. code:: bash
+
+    mkdir ~/.git_template
+    git config --global init.templatedir '~/.git_template'
+    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit
+    chmod +x ~/.git_template/hooks/pre-commit
+    vim ~/.git_template/hooks/pre-commit
+
+Again, you will need to set the pattern file(s) to use by modifying the (empty by default) :code:`patterns` option.
+
+Getting Involved
+=================
+Hey! Glad you're interested in getting involved, whether by flagging bugs, submitting feature requests, or otherwise improving Poirot.
+
+To get you oriented, there are three project repositories to be aware of:
+
+1. This one here, which contains the Poirot Python package.
+2. `DCgov/poirot-patterns <https://github.com/DCgov/poirot-patterns>`_, where we're compiling boilerplate pattern files.
+3. `DCgov/poirot-test-repo <https://github.com/DCgov/poirot-test-repo>`_, which we're running the tests on. If you check out the `test directory <https://github.com/DCgov/poirot/tree/master/tests>`_ in this repository, you will find that DCgov/poirot-test-repo has been added as a submodule.
+
+You should also read over the `LICENSE.md <https://github.com/DCgov/poirot/blob/master/LICENSE.md>`_ and `CONTRIBUTING.md <https://github.com/DCgov/poirot/blob/master/CONTRIBUTING.md>`_, which govern the terms under which this project's code and your hypothetical contributions are being made available.
+
+If you're going to modify a Poirot fork and submit pull requests, be sure to add tests to validate your changes.
+
+Running Unit Tests
+___________________
+Once you've forked or cloned Poirot, you can run the unit tests with:
+
+.. code:: bash
+
+    python setup.py test
+
+To test multiple Python versions (current we aim to support 2.7, 3.3, 3.4, and 3.5), you will need each installed in your environment. Install the `tox <https://pypi.python.org/pypi/tox>`_ package with pip or easy_install, then simply run it with:
+
+.. code:: bash
+
+    tox
