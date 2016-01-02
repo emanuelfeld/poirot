@@ -20,18 +20,8 @@ Poirot uses these Python packages:
 * `tqdm <https://pypi.python.org/pypi/tqdm/>`_ to display a progress bar
 * `regex <https://pypi.python.org/pypi/regex/>`_ to allow for POSIX ERE regular expressions
 
-Installation
-=============
-Poirot is available on PyPi and can be `installed with pip <https://pip.pypa.io/en/stable/installing/>`_ as:
-
-.. code-block:: bash
-
-  pip install poirot
-
-You may want to install it in a virtual environment.
-
 Running Poirot
-===============
+=============
 To invoke Poirot and see his findings, call him from the command line with :code:`big-grey-cells` (for wordy, colorful output) or :code:`little-grey-cells` (for minimalistic output) and with the following optional arguments:
 
 * **--url**: The repository's URL, e.g. :code:`https://github.com/DCgov/poirot.git` or :code:`git@github.com:DCgov/poirot.git`. When included, you will be given the choice to clone or pull from the remote URL. Default value: none.
@@ -50,46 +40,47 @@ Note: in all of the following examples, :code:`big-grey-cells` could be substitu
 
 The most basic command Poirot will accept is:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --term="thisisaterm"
+  big-grey-cells --term="thisisaterm"
 
 That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the pattern :code:`thisisaterm`.
 
 To include a whole file of patterns, do this instead:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --patterns='thisisapatternfile.txt'
+  big-grey-cells --patterns='thisisapatternfile.txt'
 
 Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --revlist="all"
+  big-grey-cells --term="thisisaterm" --revlist="all"
 
 
 You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
+  big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
 
 Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
+  big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm"
 
 You can also specify a different directory than the current one with :code:`dir`. The following command will clone/pull to the folder :code:`thisotherfolder`, which sits inside of the current directory. If it does not yet exist, it will be created.
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
+  big-grey-cells --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
 
 To search changes that have been staged for commit, but not yet committed, use the :code:`staged` flag:
 
-.. code-block:: bash
+.. code:: bash
 
-  $ big-grey-cells --term="thisisaterm" --staged
+  big-grey-cells --term="thisisaterm" --staged
+

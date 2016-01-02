@@ -22,7 +22,6 @@ Dependencies
 * Python 2.7 or 3.3+
 * a Unix-based OS (e.g. Mac or Linux) or a UNIX-y shell on Windows (e.g. `Cygwin <https://www.cygwin.com/>`_, `Babun <http://babun.github.io/>`_, or `Git-Bash <https://git-for-windows.github.io/>`_)
 
-
 Poirot uses these Python packages:
 
 * `Jinja2 <https://pypi.python.org/pypi/Jinja2/>`_ to format its console output
@@ -37,7 +36,13 @@ Poirot is available on PyPi and can be `installed with pip <https://pip.pypa.io/
 
   pip install poirot
 
-You may want to install it in a virtual environment.
+You may want to install it in a virtual environment. If you plan on using Poirot in a global git commit hook and maintain multiple python versions, you will have to do a global pip install for each. E.g., if you have Python 2.7, 3.3, and 3.5 installed:
+
+.. code:: bash
+
+  pip2.7 install poirot
+  pip3.3 install poirot
+  pip3.5 install poirot
 
 Running Poirot
 =============
