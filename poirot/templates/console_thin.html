@@ -1,4 +1,4 @@
-Poirot reporting back on {{ info['repo_url'] }}
+Poirot reporting back: {{ info['repo_url'] }}
 {% for term in data %}{% if data[term] %}
 Pattern: {{term}}
 {% if info['staged']%}{% for file in data[term]%}
@@ -12,7 +12,7 @@ Pattern: {{term}}
  Author: {{data[term][commit]['author_name']}}, {{data[term][commit]['author_email']|strip}}
  Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["log"]%}
   Commit Message
-  {{data[term][commit]["log"]|chunk_text(80, 4)}}
+{{data[term][commit]["log"]|chunk_text(80, 5)|strip}}
   {%endif%}{% for file in data[term][commit]['files']%}
   File: {{file['file']}}
 {%for match in file['matches']%}

@@ -77,12 +77,13 @@ def strip(text):
 
 def chunk_text(text, cutoff, offset):
     cutoff = cutoff - offset
-    split = text.split(' ')
     join_str = '\n' + " "*offset
+    split = text.split(' ')
     chunk = ''
     chunked = []
     while len(split):
         word = split.pop(0)
+        word = word.strip(' \n')
         if not chunk and len(word) < cutoff:
             chunk = word
         elif not chunk and len(word) > cutoff:
@@ -94,4 +95,5 @@ def chunk_text(text, cutoff, offset):
             chunk = word
     if chunk:
         chunked.append(chunk)
-    return " "*offset + join_str.join(chunked)
+    output = '\n'.join(chunked).replace('\n', join_str)
+    return " "*offset + output

@@ -10,7 +10,7 @@
 {{'             '|style('purple')}}{{'*'|style('darkblue')}}{{'**        '|style('purple')}}{{'*'|style('darkblue')}}{{'*******   '|style('purple')}}{{'*'|style('darkblue')}}{{'**   '|style('purple')}}{{'*'|style('darkblue')}}{{'**        '|style('purple')}}{{'*'|style('darkblue')}}{{'*******   '|style('purple')}}{{'*'|style('darkblue')}}{{'**         '|style('purple')}}
 
 
-{{ "Poirot reporting back on "|style('darkgreen') }} {{ info['repo_url']|style('green') ~ " :"|style('darkgreen') }}
+{{ "Poirot reporting back: "|style('darkgreen') }} {{ info['repo_url']|style('green') ~ " :"|style('darkgreen') }}
 
 Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
@@ -29,7 +29,7 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
   Date {{ data[term][commit]["author_date"]}}{% if data[term][commit]["log"]%}
   
     {{"Commit Message"|style('darkgreen')|fail}}
-{{data[term][commit]["log"]|highlight(term)|chunk_text(80, 4)}}{%endif%}{% for file in data[term][commit]['files']%}
+{{data[term][commit]["log"]|highlight(term)|chunk_text(80, 4)|strip}}{%endif%}{% for file in data[term][commit]['files']%}
 
   {{file['file']|style('darkgreen')|fail}}
 {% for match in file['matches']%}
