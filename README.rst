@@ -2,6 +2,9 @@
 Poirot
 ======
 
+.. image:: https://travis-ci.org/DCgov/poirot.svg?branch=master
+    :target: https://travis-ci.org/DCgov/poirot
+
 Poirot helps you investigate your repositories. Give him a set of clues (e.g. strings or regular expressions) and he will report back any instances they have occurred in your repository's revision history.
 
 When used as a pre-commit hook, Poirot can warn you if you're about to commit something you might not intend (think passwords, private keys, tokens, and other bits of sensitive or personally identifiable information).
