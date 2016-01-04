@@ -66,15 +66,21 @@ The most basic command Poirot will accept is:
 
 .. code:: bash
 
-  big-grey-cells --term="thisisaterm"
+  big-grey-cells
 
-That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the pattern :code:`thisisaterm`.
+That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the patterns in the default pattern file. :code:`thisisaterm`.
 
-To include a whole file of patterns, do this instead:
+To specify one or more different patterns files, do this instead:
 
 .. code:: bash
 
   big-grey-cells --patterns='thisisapatternfile.txt'
+
+Or for a single term (like :code:`thisisaterm`):
+
+.. code:: bash
+
+  big-grey-cells --term="thisisaterm"
 
 Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
 
@@ -82,13 +88,11 @@ Say you want to search for :code:`thisisaterm` in the whole revision history of 
 
   big-grey-cells --term="thisisaterm" --revlist="all"
 
-
 You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
 .. code:: bash
 
   big-grey-cells --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
-
 
 Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
 
@@ -107,7 +111,6 @@ To search changes that have been staged for commit, but not yet committed, use t
 .. code:: bash
 
   big-grey-cells --term="thisisaterm" --staged
-
 
 Using Poirot as a Pre-Commit Hook
 ==================================

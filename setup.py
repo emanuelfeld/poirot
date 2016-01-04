@@ -8,7 +8,7 @@ with open('README_PYPI.rst') as file:
     long_description = file.read()
 
 setup(name='poirot',
-	  version='0.0.17.1',
+	  version='0.0.18',
 	  author='Emanuel Feld',
 	  author_email='elefbet@gmail.com',
 	  description="Investigate a Git repository's revision history to find text patterns.",
@@ -22,6 +22,9 @@ setup(name='poirot',
 	  classifiers=[
 	  	'Environment :: Console',
 	  	'Intended Audience :: Developers',
+	  	'Development Status :: 3 - Alpha',
+        'License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
+        'License :: Public Domain',
 	  	'Programming Language :: Python',
 		'Programming Language :: Python :: 2.7',
 		'Programming Language :: Python :: 3.3',

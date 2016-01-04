@@ -7,7 +7,7 @@ from poirot.helpers import *
 
 def setUp():
     global case, poirot
-    args = ['-u', 'git@github.com:DCgov/poirot-test-repo.git', '--revlist=all', '--dir=tests/fixtures', '--patterns=tests/test_patterns.txt', '--term', 'frabjous']
+    args = ['-u', 'git@github.com:DCgov/poirot-test-repo.git', '--revlist=all', '--dir=tests/fixtures', '--patterns=poirot/patterns/default.txt', '--term', 'frabjous']
     case = Case(args)
     case_parser_test()
     client = ConsoleClient()
@@ -23,7 +23,7 @@ def tearDown():
 
 def case_parser_test():
     eq_(len(case.__dict__), 10)
-    eq_(len(case.patterns), 8)
+    eq_(len(case.patterns), 16)
     eq_(case.revlist, ['--all'])
     eq_(case.git_url, 'git@github.com:DCgov/poirot-test-repo.git')
 
@@ -36,7 +36,7 @@ def find_matches_test():
     eq_(frabjous['f0a6ebc']['files'][0]['matches'][0]['line'], 12)
     eq_(frabjous['f0a6ebc']['files'][1]['matches'][0]['line'], 2)
 
-    password = poirot.findings['password[ ]*=[ ]*.+']
+    password = poirot.findings['pass(word?)[[:blank:]]*[=:][[:blank:]]*.+']
     eq_(len(password), 2)
     ok_('log' in password['2f04563'].keys())
 

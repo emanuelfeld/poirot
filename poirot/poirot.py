@@ -137,8 +137,11 @@ class Case(object):
             pass
 
         if len(self.patterns) == 0:
-            print(style('No patterns given! Include some using --term or --patterns', 'red'))
-            sys.exit(1)
+            print(style('No patterns given! Using default pattern set.', 'blue'))
+            pattern_path = os.path.dirname(os.path.realpath(__file__))
+            pattern_path = os.path.join(pattern_path, 'patterns/default.txt')
+            file_patterns = set([p for p in self.add_patterns(pattern_path)])
+            self.patterns.update(file_patterns)
 
     def add_patterns(self, file_path):
         """
