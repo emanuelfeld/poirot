@@ -44,7 +44,7 @@ The most basic command Poirot will accept is:
 
   big-grey-cells
 
-That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the patterns in the default pattern file. :code:`thisisaterm`.
+That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the patterns in `the default pattern file <https://github.com/DCgov/poirot/blob/master/poirot/patterns/default.txt>`_.
 
 To specify one or more different patterns files, do this instead:
 
