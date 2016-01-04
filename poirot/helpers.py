@@ -23,11 +23,12 @@ def ask(question, options, formatting=None):
 
     response = ""
 
+    get_input = input
     if sys.version_info[:2] <= (2, 7):
-        input = raw_input
+        get_input = raw_input
     prompt = '{} [{}] '.format(question, ', '.join(options))
     while response not in options:
-        response = input(style(prompt, formatting))
+        response = get_input(style(prompt, formatting))
     return response
 
 
