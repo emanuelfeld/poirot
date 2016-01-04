@@ -1,3 +1,4 @@
 tqdm>=3.4.0
 Jinja2>=2.8
 regex>=2015.11.22
+nose-progressive
