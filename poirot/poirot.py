@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import argparse
 import os
 import regex
@@ -136,6 +138,7 @@ class Case(object):
 
         try:
             pfile_list = facts.patterns.strip().split(',')
+            pfile_list = [pfile for pfile in pfile_list if pfile]
             for pfile in pfile_list:
                 file_patterns = set([p for p in self.add_patterns(pfile)])
                 self.patterns.update(file_patterns)
@@ -160,10 +163,10 @@ class Case(object):
                     line = line.rstrip()
                     if line and not line.startswith('#'):
                         yield line
-        except IOError:
-            raise IOError("""Pattern file {} does not exist.\nSpecify
-                          the correct file path with
-                          --patterns""".format(file_path))
+        except (OSError, FileNotFoundError):
+            warning = "Pattern file {} does not exist. "\
+                      "Specify the correct file path with --patterns".format(file_path)
+            print(style(warning, 'red'))
 
     def parser(self):
         query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
