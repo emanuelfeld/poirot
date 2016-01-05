@@ -48,7 +48,8 @@ class ConsoleClient(AbstractClient):
             pager.wait()
         except KeyboardInterrupt:
             pass
-
+        except BrokenPipeError:
+            pass
 
 class ConsoleThinClient(AbstractClient):
     """
