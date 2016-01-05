@@ -144,7 +144,7 @@ To set a global pre-commit hook using Poirot, you can use the `init.templatedir 
 
 .. code:: bash
 
-    mkdir ~/.git_template
+    mkdir -p ~/.git_template/hooks
     git config --global init.templatedir '~/.git_template'
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit

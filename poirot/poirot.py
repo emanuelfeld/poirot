@@ -6,11 +6,12 @@ from tqdm import tqdm
 
 from .helpers import clone_pull, merge_dicts, parse_post, parse_pre
 from .style import style
+from .clients import ConsoleClient, ConsoleThinClient
 
 
 class Poirot(object):
 
-    def __init__(self, client, case):
+    def __init__(self, case):
         """
         Poirot needs to know who he's working for (client) and
         the details of the case. He also likes to get things in
@@ -22,7 +23,6 @@ class Poirot(object):
             case: Case object
         """
 
-        self.client = client
         self.case = case
         self.findings = {p: {} for p in case.patterns}
 
@@ -93,7 +93,11 @@ class Poirot(object):
 
         found_evidence = any(f for f in self.findings.values())
         if found_evidence:
-            self.client.render(self.findings, self.case.__dict__)
+            if self.case.verbose:
+                self.client = ConsoleClient()
+            else:
+                self.client = ConsoleThinClient()
+            self.client.render(data=self.findings, info=self.case.__dict__)
             sys.exit(1)
         else:
             print(style("Poirot didn't find anything!", 'darkblue'))
@@ -114,6 +118,8 @@ class Case(object):
         self.after = facts.after
         self.author = facts.author
         self.staged = facts.staged
+        self.verbose = facts.verbose
+
         self.git_url = facts.url.rstrip('/')
         self.repo_url = regex.sub(r'\.git$', '', self.git_url)
         self.repo_dir = facts.dir
@@ -214,6 +220,10 @@ class Case(object):
         query.add_argument('--staged', '-st',
                            dest='staged',
                            action='store_true',
-                           help="""Flag to Search staged modifications, instead of
+                           help="""Flag to search staged modifications, instead of
                                 already committed ones.""")
+        query.add_argument('--verbose', '-v',
+                           dest='verbose',
+                           action='store_true',
+                           help="""Flag to output colorful, verbose results.""")
         return query

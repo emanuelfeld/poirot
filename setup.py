@@ -8,7 +8,7 @@ with open('README_PYPI.rst') as file:
     long_description = file.read()
 
 setup(name='poirot',
-	  version='0.0.19',
+	  version='0.0.19.1',
 	  author='Emanuel Feld',
 	  author_email='elefbet@gmail.com',
 	  description="Investigate a Git repository's revision history to find text patterns.",
@@ -34,8 +34,7 @@ setup(name='poirot',
 	  include_package_data=True,
 	  entry_points = {
 	  	'console_scripts': [
-	  		'little-grey-cells=poirot.commands:littlegreycells',
-	  		'big-grey-cells=poirot.commands:biggreycells'
+	  		'poirot=poirot.commands:poirot',
 	  		]
 	  },
 	  zip_safe=False)
