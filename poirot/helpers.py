@@ -75,9 +75,18 @@ def execute_cmd(cmd):
     Executes a command and returns the result and error output.
     """
 
-    popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-    return popen.communicate()
-
+    try:
+        popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        return popen.communicate()
+    except UnicodeDecodeError:
+        popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        (out, err) = popen.communicate()
+        try:
+            return (out.decode('latin-1'), err)
+        except:
+            error = sys.exc_info()[0]
+            print(style('There was a problem executing command: {}\n'.format(cmd), 'red'), error)
+            return ('', err)
 
 def parse_pre(pattern, repo_dir):
     """
@@ -121,7 +130,7 @@ def parse_post(target, pattern, git_dir, revlist=None, author=None, before=None,
             information.
     """
 
-    pattern_re = regex.compile(pattern, regex.I)
+    pattern_re = regex.compile(r'{}'.format(pattern), regex.I)
     deleted_re = regex.compile(r'^deleted file')
     line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
