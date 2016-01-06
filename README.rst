@@ -143,7 +143,7 @@ If you would like to use a pattern file other than the default, run:
 
     vim .git/hooks/pre-commit
 
-Then edit the following line so that it points to the correct patterns folder within the quotes. This should be the absolute path the the folder, with no trailing '/'.
+Then edit the following line so that it points to the correct patterns folder within the quotes. This should be the absolute path the the folder, with no trailing '/'. To start off, I advise you to fork and use the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_. You can then edit these to best fit your needs.
 
 .. code:: bash
 
