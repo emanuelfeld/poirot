@@ -77,16 +77,20 @@ def execute_cmd(cmd):
 
     try:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-        return popen.communicate()
+        (out, err) = popen.communicate()
     except UnicodeDecodeError:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         (out, err) = popen.communicate()
         try:
-            return (out.decode('latin-1'), err)
+            out = out.decode('latin-1')
+            out = out.encode('utf-8')
         except:
             error = sys.exc_info()[0]
             print(style('There was a problem executing command: {}\n'.format(cmd), 'red'), error)
-            return ('', err)
+            out = ''
+    finally:
+        return (out, err)
+
 
 def parse_pre(pattern, repo_dir):
     """
