@@ -163,7 +163,7 @@ class Case(object):
                     line = line.rstrip()
                     if line and not line.startswith('#'):
                         yield line
-        except (OSError, FileNotFoundError):
+        except (IOError, OSError):
             warning = "Pattern file {} does not exist. "\
                       "Specify the correct file path with --patterns".format(file_path)
             print(style(warning, 'red'))

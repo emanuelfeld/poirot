@@ -2,7 +2,7 @@
 Poirot
 ======
 
-Poirot helps you investigate your repositories. Give him a set of clues (e.g. strings or regular expressions) and he will report back any instances they have occurred in your repository's revision history.
+Poirot helps you investigate your repositories. Give him a set of clues (e.g. strings or regular expressions) and he will report back any place they appear in your repository's revision history.
 
 When used as a pre-commit hook, Poirot can warn you if you're about to commit something you might not intend (think passwords, private keys, tokens, and other bits of sensitive or personally identifiable information).
 
@@ -12,7 +12,7 @@ Dependencies
 =============
 * git
 * Python 2.7 or 3.3+
-* a Unix-based OS (e.g. Mac or Linux) or a UNIX-y shell on Windows (e.g. `Cygwin <https://www.cygwin.com/>`_, `Babun <http://babun.github.io/>`_, or `Git-Bash <https://git-for-windows.github.io/>`_)
+* a UNIX-based OS (e.g. Mac or Linux) or a UNIX-y shell on Windows (e.g. `Cygwin <https://www.cygwin.com/>`_, `Babun <http://babun.github.io/>`_, or `Git-Bash <https://git-for-windows.github.io/>`_). It will not work with the default Windows Command Prompt (cmd).
 
 Poirot uses these Python packages:
 
@@ -28,7 +28,9 @@ Poirot is available on PyPi and can be `installed with pip <https://pip.pypa.io/
 
   pip install poirot
 
-You may want to install it in a virtual environment. If you plan on using Poirot in a global git commit hook and maintain multiple python versions, you will have to do a global pip install for each. E.g., if you have Python 2.7, 3.3, and 3.5 installed:
+You may want to install it in a virtual environment, unless you plan on using Poirot in a global commit hook.
+
+In that case, you will have to ensure that you have done a global pip install for any Python versions you are using. E.g., if you want to run it on Python 2.7, 3.3, and 3.5 installed, install Poirot as follows:
 
 .. code:: bash
 
@@ -46,7 +48,7 @@ To invoke Poirot and see his findings, call him from the command line with :code
 * **--patterns**: The path to a .txt file with strings or regular expression patterns, each on its own line. You can give a comma-separated list of pattern files, if you wish to include more than one. Default value: none.
 * **--staged**: A flag, which when included, restricts search to staged revisions. This is helpful, along with :code:`--dir`, as part of a pre-commit hook.
 * **--revlist**: A range of revisions to inspect. Default value: The last commit (i.e. :code:`HEAD^!`) if :code:`--staged` is not included, otherwise none.
-* **--verbose**: A flag to output verbose, colorful output.
+* **--verbose**: A flag to output verbose, colorful output and pattern-match highlighting.
 * **--before**: Date restriction on revisions. Default value: none.
 * **--after**: Date restriction on revisions. Default value: none.
 * **--author**: Authorship restriction on revisions. Default value: none.
@@ -66,7 +68,7 @@ To specify one or more different patterns files, do this instead:
 
 .. code:: bash
 
-  poirot --patterns='thisisapatternfile.txt'
+  poirot --patterns='../path/to/thisisapatternfile.txt'
 
 Or for a single term (like :code:`thisisaterm`):
 
@@ -74,7 +76,7 @@ Or for a single term (like :code:`thisisaterm`):
 
   poirot --term="thisisaterm"
 
-Say you want to search for :code:`thisisaterm` in the whole revision history of the current branch. Then do:
+Say you want to search for :code:`thisisaterm` in the whole revision history of all branches. Then do:
 
 .. code:: bash
 
@@ -86,7 +88,7 @@ You can further restrict the set of revisions Poirot looks through with the :cod
 
   poirot --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
-Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull:
+Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull to the current folder.
 
 .. code:: bash
 
