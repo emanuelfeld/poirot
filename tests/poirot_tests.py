@@ -21,7 +21,7 @@ def tearDown():
 
 def case_parser_test():
     eq_(len(case.__dict__), 11)
-    eq_(len(case.patterns), 18)
+    eq_(len(case.patterns), 24)
     eq_(case.revlist, ['--all'])
     eq_(case.git_url, 'https://github.com/DCgov/poirot-test-repo.git')
 
