@@ -144,19 +144,23 @@ To set up a pre-commit hook for a particular repository, first install Poirot an
 
 This installs the pre-commit hook script for your repository and makes it executable.
 
-If you would like to use a pattern file other than the default, run:
+If you would like to use patterns other than the default, run:
 
 .. code:: bash
 
     vim .git/hooks/pre-commit
 
-Then edit the following line so that it points to the correct patterns folder within the quotes. This should be the absolute path the the folder, with no trailing '/'. To start off, I advise you to fork and use the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_. You can then edit these to best fit your needs.
+This is easiest to manage if you put all the pattern files in one folder on your computer. My advice is to fork the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ and download it to your computer.
+
+Then edit the following line, so that it gives the absolute path to that folder within quotes:
 
 .. code:: bash
 
     patterns_folder=""
 
-If you ever want to commit without running the hook, just use:
+If you go ahead with setting up a patterns folder, then you can easily add, delete, or modify the pattern files without having to keep re-editing the commit hook.
+
+As an aside, if you ever want to commit without running the hook, just use:
 
 .. code:: bash
 
@@ -173,18 +177,30 @@ To set a Poirot pre-commit hook for all your new repositories, you can add it to
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit
 
-For existing repositories, you can either follow the instructions above or re-run :code:`git init` in the repo. Running :code:`git init` will not overwrite things that are already there. It will only add new template files (e.g. this hook). You might decide to change your global pre-commit hook after you've already applied it to a repository. In that case, you will need to delete the repository's existing pre-commit hook and re-run :code:`git init`. From the root of the repository, run:
+For existing repositories, you can either follow the instructions above or re-run :code:`git init` in the repo. Running :code:`git init` will not overwrite things that are already there. It will only add new template files (e.g. this hook).
+
+As in the above section on `Single Repositories <https://github.com/DCgov/poirot#for-a-single-repository>`_, I recommend that you start out by setting up a patterns folder on your computer. You can fork and download the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ to get started.
+
+Then run:
+
+.. code:: bash
+
+    vim ~/.git_template/hooks/pre-commit
+
+And edit the following line, so that it gives the absolute path to that folder within quotes:
+
+.. code:: bash
+
+    patterns_folder=""
+
+Using a patterns folder avoids most instances that would make you want to make subsequent edits to your global pre-commit hook.
+
+If you do decide to make a change after you have already applied the global pre-commit hook to a repository, you will need to delete the repository's existing pre-commit hook and re-run :code:`git init`. To do that, run the following from the root of the repository:
 
 .. code:: bash
 
     rm ~/.git/hooks/pre-commit
     git init
-
-To avoid this problem, you should set the patterns folder in your global hook, like in the Single Repository instructions:
-
-.. code:: bash
-
-    vim ~/.git_template/hooks/pre-commit
 
 Getting Involved
 =================
