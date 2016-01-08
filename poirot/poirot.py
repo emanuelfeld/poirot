@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import os
 import regex
+import requests
 import sys
 from tqdm import tqdm
 
@@ -140,8 +141,7 @@ class Case(object):
             pfile_list = facts.patterns.strip().split(',')
             pfile_list = [pfile for pfile in pfile_list if pfile]
             for pfile in pfile_list:
-                file_patterns = set([p for p in self.add_patterns(pfile)])
-                self.patterns.update(file_patterns)
+                self.patterns.update(self.add_patterns(pfile))
         except AttributeError:
             pass
 
@@ -154,19 +154,41 @@ class Case(object):
 
     def add_patterns(self, file_path):
         """
-        Takes a pattern file's path and yields its patterns
+        Takes a pattern file's path or url and yields its patterns
+        Args:
+            file_path: path or url to a newline-delimited text file
         """
-
-        try:
-            with open(file_path) as infile:
-                for line in infile:
-                    line = line.rstrip()
-                    if line and not line.startswith('#'):
-                        yield line
-        except (IOError, OSError):
+        def warn(file_path):
             warning = "Pattern file {} does not exist. "\
                       "Specify the correct file path with --patterns".format(file_path)
             print(style(warning, 'red'))
+
+        def read_file(file_path, source_type='local'):
+            try:
+                lines = []
+                if source_type == 'url':
+                    r = requests.get(file_path)
+                    if r.status_code == 200:
+                        lines = r.text.split('\n')
+                else:
+                    f = None
+                    try:
+                        f = open(file_path)
+                        lines = f.readlines()
+                    finally:
+                        if f:
+                            f.close()
+                for line in lines:
+                    line = line.rstrip()
+                    if line and not line.startswith('#'):
+                        yield line
+            except:
+                warn(file_path)
+
+        if regex.search(r'^http[s]://', file_path):
+            return set([p for p in read_file(file_path, 'url')])
+        else:
+            return set([p for p in read_file(file_path)])
 
     def parser(self):
         query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
