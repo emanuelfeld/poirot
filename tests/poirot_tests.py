@@ -6,7 +6,14 @@ from poirot.helpers import *
 
 def setUp():
     global case, poirot
-    args = ['-u', 'https://github.com/DCgov/poirot-test-repo.git', '--revlist=all', '--dir=tests/fixtures', '--patterns=poirot/patterns/default.txt', '--term', 'frabjous']
+    args = [
+                '-u',
+                'https://github.com/DCgov/poirot-test-repo.git',
+                '--revlist=all',
+                '--dir=tests/fixtures',
+                '--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/DCgov/poirot-patterns/master/default.txt',
+                '--term=frabjous'
+            ]
     case = Case(args)
     case_parser_test()
     poirot = Poirot(case)
@@ -21,7 +28,7 @@ def tearDown():
 
 def case_parser_test():
     eq_(len(case.__dict__), 11)
-    eq_(len(case.patterns), 24)
+    eq_(len(case.patterns), 18)
     eq_(case.revlist, ['--all'])
     eq_(case.git_url, 'https://github.com/DCgov/poirot-test-repo.git')
 

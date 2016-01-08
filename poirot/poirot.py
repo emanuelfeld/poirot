@@ -164,27 +164,28 @@ class Case(object):
             print(style(warning, 'red'))
 
         def read_file(file_path, source_type='local'):
-            try:
-                lines = []
-                if source_type == 'url':
-                    r = requests.get(file_path)
-                    if r.status_code == 200:
-                        lines = r.text.split('\n')
-                else:
-                    f = None
-                    try:
-                        f = open(file_path)
-                        lines = f.readlines()
-                    finally:
-                        if f:
-                            f.close()
-                for line in lines:
-                    line = line.rstrip()
-                    if line and not line.startswith('#'):
-                        yield line
-            except:
-                warn(file_path)
+            # try:
+            lines = []
+            if source_type == 'url':
+                r = requests.get(file_path)
+                if r.status_code == 200:
+                    lines = r.text.split('\n')
+            else:
+                f = None
+                try:
+                    f = open(file_path)
+                    lines = f.readlines()
+                finally:
+                    if f:
+                        f.close()
+            for line in lines:
+                line = line.rstrip()
+                if line and not line.startswith('#'):
+                    yield line
+            # except:
+            #     warn(file_path)
 
+        file_path = file_path.strip()
         if regex.search(r'^http[s]://', file_path):
             return set([p for p in read_file(file_path, 'url')])
         else:

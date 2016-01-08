@@ -33,6 +33,7 @@ Poirot uses these Python packages:
 * `Jinja2 <https://pypi.python.org/pypi/Jinja2/>`_ to format its console output
 * `tqdm <https://pypi.python.org/pypi/tqdm/>`_ to display a progress bar
 * `regex <https://pypi.python.org/pypi/regex/>`_ to allow for POSIX ERE regular expressions
+* `requests <https://pypi.python.org/pypi/requests/>`_ to read remote pattern files
 
 Installation
 =============
@@ -59,7 +60,7 @@ To invoke Poirot and see his findings, call him from the command line with :code
 * **--url**: The repository's URL, e.g. :code:`https://github.com/DCgov/poirot.git` or :code:`git@github.com:DCgov/poirot.git`. When included, you will be given the choice to clone or pull from the remote URL. Default value: none.
 * **--dir**: The local path to your repository's base directory or the directory you would like to clone or pull to. Default value: the current working directory.
 * **--term**: A single term or regular expression to search for. Default value: none.
-* **--patterns**: The path to a .txt file with strings or regular expression patterns, each on its own line. You can give a comma-separated list of pattern files, if you wish to include more than one. Default value: none.
+* **--patterns**: The path to a .txt file with strings or regular expression patterns, each on its own line. These can be the file's URL or its relative or absolute local path. You can give a comma-separated list of pattern files, if you wish to include more than one. Default value: `default.txt <https://github.com/DCgov/poirot/edit/master/poirot/patterns/default.txt>`_.
 * **--staged**: A flag, which when included, restricts search to staged revisions. This is helpful, along with :code:`--dir`, as part of a pre-commit hook.
 * **--revlist**: A range of revisions to inspect. Default value: The last commit (i.e. :code:`HEAD^!`) if :code:`--staged` is not included, otherwise none.
 * **--verbose**: A flag to output verbose, colorful output and pattern-match highlighting. The GIF above gives an example with --verbose included.
@@ -78,47 +79,53 @@ The most basic command Poirot will accept is:
 
 That will search the current git directory's last commit (i.e. :code:`HEAD^!`) for the patterns in `the default pattern file <https://github.com/DCgov/poirot/blob/master/poirot/patterns/default.txt>`_.
 
-To specify one or more different patterns files, do this instead:
+To specify one or more different patterns files (each separated by a comma), do this instead:
 
 .. code:: bash
 
-  poirot --patterns='../path/to/thisisapatternfile.txt'
+  poirot --patterns='../path/to/thisisapatternfile.txt,/Users/myusername/anotherpatternfile.txt'
 
-Or for a single term (like :code:`thisisaterm`):
-
-.. code:: bash
-
-  poirot --term="thisisaterm"
-
-Say you want to search for :code:`thisisaterm` in the whole revision history of all branches. Then do:
+The --patterns option also allows files accessible over HTTP, like `this one here <https://raw.githubusercontent.com/DCgov/poirot/master/poirot/patterns/default.txt>`_:
 
 .. code:: bash
 
-  poirot --term="thisisaterm" --revlist="all"
+  poirot --patterns='https://raw.githubusercontent.com/DCgov/poirot/master/poirot/patterns/default.txt'
+
+To search for a single term (like :code:`password`):
+
+.. code:: bash
+
+  poirot --term="password"
+
+Say you want to search for :code:`password` in the whole revision history of all branches. Then do:
+
+.. code:: bash
+
+  poirot --term="password" --revlist="all"
 
 You can further restrict the set of revisions Poirot looks through with the :code:`before`, :code:`after`, and :code:`author` options (which correspond to the `same flags in git <https://git-scm.com/docs/git-log>`_). E.g.:
 
 .. code:: bash
 
-  poirot --term="thisisaterm" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
+  poirot --term="password" --revlist=40dc6d1...3e4c011 --before="2015-11-28" --after="2015-10-01" --author="me@poirot.com"
 
 Perhaps you don't have the repository available locally or you would like to update it from a remote URL. Just add the :code:`url` to your command and it will allow you to clone or pull to the current folder.
 
 .. code:: bash
 
-  poirot --url https://github.com/foo/baz.git --term="thisisaterm"
+  poirot --url https://github.com/foo/baz.git --term="password"
 
 You can also specify a different directory than the current one with :code:`dir`. The following command will clone/pull to the folder :code:`thisotherfolder`, which sits inside of the current directory. If it does not yet exist, it will be created.
 
 .. code:: bash
 
-  poirot --url https://github.com/foo/baz.git --term="thisisaterm" --dir="thisotherfolder"
+  poirot --url https://github.com/foo/baz.git --term="password" --dir="thisotherfolder"
 
 To search changes that have been staged for commit, but not yet committed, use the :code:`staged` flag:
 
 .. code:: bash
 
-  poirot --term="thisisaterm" --staged
+  poirot --term="password" --staged
 
 Running Poirot as a Pre-Commit Hook
 =====================================
@@ -166,9 +173,14 @@ To set a Poirot pre-commit hook for all your new repositories, you can add it to
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit
 
-For existing repositories, you can either follow the instructions above or re-run :code:`git init` in the repo. Running :code:`git init` in an existing repository is safe. It will not overwrite things that are already there. It will only add new template files (e.g. this hook).
+For existing repositories, you can either follow the instructions above or re-run :code:`git init` in the repo. Running :code:`git init` will not overwrite things that are already there. It will only add new template files (e.g. this hook). You might decide to change your global pre-commit hook after you've already applied it to a repository. In that case, you will need to delete the repository's existing pre-commit hook and re-run :code:`git init`. From the root of the repository, run:
 
-Again, you can set the pattern file(s) to use by modifying the (empty by default) :code:`patterns` option:
+.. code:: bash
+
+    rm ~/.git/hooks/pre-commit
+    git init
+
+To avoid this problem, you should set the patterns folder in your global hook, like in the Single Repository instructions:
 
 .. code:: bash
 
