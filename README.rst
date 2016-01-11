@@ -147,15 +147,11 @@ To set up a pre-commit hook for a particular repository, first install Poirot an
 
 This installs the pre-commit hook script for your repository and makes it executable.
 
-If you would like to use patterns other than the default, run:
-
-.. code:: bash
-
-    vim .git/hooks/pre-commit
+Want to use patterns other than the default?
 
 This is easiest to manage if you put all the pattern files in one folder on your computer. My advice is to fork the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ and download it to your computer.
 
-Then edit the following line, so that it gives the absolute path to that folder within quotes:
+Open up :code:`.git/hooks/pre-commit` in a text editor (e.g. nano, vim, Sublime Text, Text Edit, or Notepad). Then edit the following line, so that it gives the absolute path to that folder within quotes:
 
 .. code:: bash
 
@@ -184,13 +180,7 @@ For existing repositories, you can either follow the instructions above or re-ru
 
 As in the above section on `Single Repositories <https://github.com/DCgov/poirot#for-a-single-repository>`_, I recommend that you start out by setting up a patterns folder on your computer. You can fork and download the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ to get started.
 
-Then run:
-
-.. code:: bash
-
-    vim ~/.git_template/hooks/pre-commit
-
-And edit the following line, so that it gives the absolute path to that folder within quotes:
+Then open :code:`~/.git_template/hooks/pre-commit` in a text editor, and edit the following line, so that it gives the absolute path to that folder within quotes:
 
 .. code:: bash
 
