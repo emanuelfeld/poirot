@@ -1,7 +1,5 @@
 {
   "specification": "",
-  "name": "Poirot",
-  "description": "A command-line tool to help you search your Git repositories for text patterns.",
   "status": "Alpha",
   "thumbnailUrl": "",
   "people": [
