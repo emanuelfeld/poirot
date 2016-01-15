@@ -1,0 +1,26 @@
+{
+  "specification": "",
+  "name": "Poirot",
+  "description": "A command-line tool to help you search your Git repositories for text patterns.",
+  "status": "Alpha",
+  "thumbnailUrl": "",
+  "people": [
+    {
+      "name": "Emanuel Feld",
+      "url": "https://github.com/emanuelfeld",
+      "role": "lead"
+    }
+  ],
+  "organizations": [
+    {
+      "name": "OCTO Innovation",
+      "url": "",
+      "role": "lead"
+    }
+  ],
+  "geography": "",
+  "type": "command line tool",
+  "data": [],
+  "tags": ["git", "revision", "search", "grep", "private", "security"],
+  "links": ["https://pypi.python.org/pypi"]
+}
