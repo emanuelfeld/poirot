@@ -1,24 +1,25 @@
 {
-  "specification": "",
-  "status": "Alpha",
-  "thumbnailUrl": "",
-  "people": [
-    {
-      "name": "Emanuel Feld",
-      "url": "https://github.com/emanuelfeld",
-      "role": "lead"
-    }
-  ],
-  "organizations": [
-    {
-      "name": "OCTO Innovation",
-      "url": "",
-      "role": "lead"
-    }
-  ],
-  "geography": "",
+  "name": "poirot",
+  "status": "Beta",
+  "contact": {
+    "name": "Emanuel Feld",
+    "email": "opensource@dc.gov"
+  },
+  "description": "A command-line tool to find text patterns in a Git repository's revision history.",
   "type": "command line tool",
+  "license": "https://raw.githubusercontent.com/DCgov/poirot/master/LICENSE.md",
+  "homepage": "https://pypi.python.org/pypi/poirot/",
+  "repository": "https://github.com/DCgov/poirot",
+  "geography": [],
   "data": [],
-  "tags": ["git", "revision", "search", "grep", "private", "security"],
-  "links": ["https://pypi.python.org/pypi"]
+  "keywords": [
+    "git",
+    "revision",
+    "search",
+    "private",
+    "security",
+    "grep"
+  ],
+  "links": [],
+  "id": "https://raw.githubusercontent.com/DCgov/civic.json/master/schema.json"
 }
