@@ -139,24 +139,22 @@ To set up a pre-commit hook for a particular repository, first install Poirot an
 
 .. code:: bash
 
-    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit
-    chmod +x .git/hooks/pre-commit
+    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit-poirot
+    chmod +x .git/hooks/pre-commit-poirot
+    echo '.git/hooks/pre-commit-poirot -f "" -p ""' >> .git/hooks/pre-commit
+    chmod +x ~/.git_template/hooks/pre-commit
 
-This installs the pre-commit hook script for your repository and makes it executable.
+The :code:`-f` and :code:`-p` in the second to last line are flags for patterns folder and a comma-separated list of pattern files, respectively. These let you use patterns other than the default, if you would like, by providing their absolute path or URL.
 
-If you would like to use patterns other than the default, run:
+For example, you could change the flag values to :code:`-f "/Users/myusername/Documents/poirot-patterns" -p "https://github.com/DCgov/poirot-patterns/blob/master/financial.txt, https://github.com/DCgov/poirot-patterns/blob/master/id.txt"`.
+
+You can either edit that line before you run it, or edit it after with:
 
 .. code:: bash
 
     vim .git/hooks/pre-commit
 
-This is easiest to manage if you put all the pattern files in one folder on your computer. My advice is to fork the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ and download it to your computer.
-
-Then edit the following line, so that it gives the absolute path to that folder within quotes:
-
-.. code:: bash
-
-    patterns_folder=""
+My advice is to fork the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ and download it to your computer. Then add the absolute path to that folder as the :code:`-f` flag.
 
 If you go ahead with setting up a patterns folder, then you can easily add, delete, or modify the pattern files without having to keep re-editing the commit hook.
 
@@ -174,24 +172,16 @@ To set a Poirot pre-commit hook for all your new repositories, you can add it to
 
     mkdir -p ~/.git_template/hooks
     git config --global init.templatedir '~/.git_template'
-    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit
+    curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit-poirot
+    chmod +x ~/.git_template/hooks/pre-commit-poirot
+    echo '.git/hooks/pre-commit-poirot -f "" -p ""' >> ~/.git_template/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit
 
-For existing repositories, you can either follow the instructions above or re-run :code:`git init` in the repo. Running :code:`git init` will not overwrite things that are already there. It will only add new template files (e.g. this hook).
+As in the `Single Repositories <https://github.com/DCgov/poirot#for-a-single-repository>`_ case, the :code:`-f` and :code:`-p` flags in the second to last line will let you use pattern files other than the default. If you don't care about that, you can run it as is.
+
+For existing repositories, you can re-run :code:`git init` in the repo. Running :code:`git init` will not overwrite things that are already there. It will only add new template files (e.g. this hook).
 
 As in the above section on `Single Repositories <https://github.com/DCgov/poirot#for-a-single-repository>`_, I recommend that you start out by setting up a patterns folder on your computer. You can fork and download the `poirot-patterns repository <https://github.com/dcgov/poirot-patterns/>`_ to get started.
-
-Then run:
-
-.. code:: bash
-
-    vim ~/.git_template/hooks/pre-commit
-
-And edit the following line, so that it gives the absolute path to that folder within quotes:
-
-.. code:: bash
-
-    patterns_folder=""
 
 Using a patterns folder avoids most instances that would make you want to make subsequent edits to your global pre-commit hook.
 
