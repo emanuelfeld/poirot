@@ -24,14 +24,7 @@ function run_poirot()
 
     # Run Poirot
     echo "Running Poirot..."
-    remote_url=$(git config --get remote.origin.url)
 
-    # EDIT THIS LINE TO GIVE THE ABSOLUTE PATH TO YOUR PATTERNS FOLDER, E.G.:
-    # patterns_folder="/Users/myusername/Documents/poirot-patterns"
-
-    patterns_folder=""
-
-    patterns=""
     if [ -n "$patterns_folder" ]; then
         echo "Pattern files:"
         for pattern_file in "$patterns_folder"/*.txt
@@ -63,6 +56,25 @@ function run_poirot()
         exit 0
     fi
 }
+
+patterns_folder=""
+patterns=""
+
+# Read in optional patterns folder and patterns files
+while getopts "f:p:" opt; do
+  case $opt in
+    f)
+      patterns_folder="$OPTARG"
+      ;;
+    p)
+      patterns="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
 
 setup_poirot || setup_failure
 run_poirot
