@@ -1,0 +1,25 @@
+{
+  "name": "poirot",
+  "status": "Beta",
+  "contact": {
+    "name": "Emanuel Feld",
+    "email": "opensource@dc.gov"
+  },
+  "description": "A command-line tool to find text patterns in a Git repository's revision history.",
+  "type": "command line tool",
+  "license": "https://raw.githubusercontent.com/DCgov/poirot/master/LICENSE.md",
+  "homepage": "https://pypi.python.org/pypi/poirot/",
+  "repository": "https://github.com/DCgov/poirot",
+  "geography": [],
+  "data": [],
+  "keywords": [
+    "git",
+    "revision",
+    "search",
+    "private",
+    "security",
+    "grep"
+  ],
+  "links": [],
+  "id": "https://raw.githubusercontent.com/DCgov/civic.json/master/schema.json"
+}

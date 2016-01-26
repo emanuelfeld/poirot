@@ -8,6 +8,9 @@ Poirot
 .. image:: https://coveralls.io/repos/DCgov/poirot/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/DCgov/poirot?branch=master
 
+.. image:: https://img.shields.io/pypi/v/poirot.svg
+    :target: https://pypi.python.org/pypi/poirot
+
 Poirot helps you investigate your repositories. Give him a set of clues (e.g. strings or regular expressions) and he will report back any place they appear in your repository's revision history.
 
 When used as a pre-commit hook, Poirot can warn you if you're about to commit something you might not intend (think passwords, private keys, tokens, and other bits of sensitive or personally identifiable information).
