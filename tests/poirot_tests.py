@@ -36,13 +36,15 @@ def case_parser_test():
 def find_matches_test():
     frabjous = poirot.findings['frabjous']
     eq_(frabjous['f0a6ebc']['author_email'], 'emanuelfeld@users.noreply.github.com')
-    eq_(len(frabjous), 3)
+    eq_(len(frabjous), 4)
     eq_(len(frabjous['f0a6ebc']['files']), 2)
     eq_(frabjous['f0a6ebc']['files'][0]['matches'][0]['line'], 12)
     eq_(frabjous['f0a6ebc']['files'][1]['matches'][0]['line'], 2)
+    eq_(frabjous['label'], '')
 
     password = poirot.findings['pass(word?)[[:blank:]]*[=:][[:blank:]]*.+']
-    eq_(len(password), 2)
+    eq_(len(password), 3)
+    eq_(password['label'], 'Usernames and Passwords')
     ok_('log' in password['2f04563'].keys())
 
 
