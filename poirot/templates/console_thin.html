@@ -1,13 +1,13 @@
 Poirot reporting back: {{ info['repo_url'] }}
-{% for term in data %}{% if data[term] %}
+{% for term in data %}{% if data[term] | length > 1 %}
 Pattern: {{term}}
-{% if info['staged']%}{% for file in data[term]%}
+{% if data[term]['label'] %}Description:  {{ data[term]['label'] }}{%endif%}{% if info['staged']%}{% for file in data[term] | reject('equalto', 'label') %}
   File: {{file['file']}}
 {%for match in file['matches']%}
     Line {{match['line']}}
 {{match['text']|chunk_text(80, 5)|strip}}
 {%endfor%}{%endfor%}{%else%}
-{% for commit in data[term] %}
+{% for commit in data[term] | reject('equalto', 'label') %}
  Commit: {{info['repo_url']}}/commit/{{commit}}
  Author: {{data[term][commit]['author_name']}}, {{data[term][commit]['author_email']|strip}}
  Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["log"]%}

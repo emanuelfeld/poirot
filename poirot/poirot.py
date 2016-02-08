@@ -27,7 +27,7 @@ class Poirot(object):
         """
 
         self.case = case
-        self.findings = {p: {} for p in case.patterns}
+        self.findings = {p["pattern"]: {"label": p["label"]} for p in case.patterns}
 
     def prepare(self):
         """
@@ -62,10 +62,12 @@ class Poirot(object):
 
         if case.staged:
             for p in case.patterns:
-                self.findings[p] = parse_pre(p, case.repo_dir)
+                pattern = p["pattern"]
+                self.findings[pattern] = parse_pre(pattern, case.repo_dir)
 
         else:
-            for pattern in tqdm(case.patterns):
+            for p in tqdm(case.patterns):
+                pattern = p["pattern"]
                 for revision in case.revlist:
                     parser_args = {
                         'git_dir': case.git_dir,
@@ -94,7 +96,7 @@ class Poirot(object):
     def report(self):
         """Render findings in the console"""
 
-        found_evidence = any(f for f in self.findings.values())
+        found_evidence = any(len(f) > 1 for f in self.findings.values())
         if found_evidence:
             if self.case.verbose:
                 self.client = ConsoleClient()
@@ -133,24 +135,30 @@ class Case(object):
         else:
             self.revlist = facts.revlist.strip().split(',')
 
-        self.patterns = set()
+        patterns = []
         if facts.term:
-            self.patterns.add(facts.term)
+            patterns.append({"pattern": facts.term, "label": ""})
 
         try:
             pfile_list = facts.patterns.strip().split(',')
             pfile_list = [pfile for pfile in pfile_list if pfile]
             for pfile in pfile_list:
-                self.patterns.update(self.add_patterns(pfile))
+                patterns.extend(self.add_patterns(pfile))
         except AttributeError:
             pass
 
-        if len(self.patterns) == 0:
+        if len(patterns) == 0:
             print(style('No patterns given! Using default pattern set.', 'blue'))
-            pattern_path = os.path.dirname(os.path.realpath(__file__))
-            pattern_path = os.path.join(pattern_path, 'patterns/default.txt')
-            file_patterns = set([p for p in self.add_patterns(pattern_path)])
-            self.patterns.update(file_patterns)
+            pfile = os.path.dirname(os.path.realpath(__file__))
+            pfile = os.path.join(pfile, 'patterns/default.txt')
+            patterns.extend(self.add_patterns(pfile))
+
+        self.patterns = []
+        pattern_ids = set([p["pattern"] for p in patterns])
+        for p in patterns:
+            if p["pattern"] in pattern_ids:
+                self.patterns.append(p)
+                pattern_ids.remove(p["pattern"])
 
     def add_patterns(self, file_path):
         """
@@ -164,32 +172,40 @@ class Case(object):
             print(style(warning, 'red'))
 
         def read_file(file_path, source_type='local'):
-            # try:
-            lines = []
-            if source_type == 'url':
-                r = requests.get(file_path)
-                if r.status_code == 200:
-                    lines = r.text.split('\n')
-            else:
-                f = None
-                try:
-                    f = open(file_path)
-                    lines = f.readlines()
-                finally:
-                    if f:
-                        f.close()
-            for line in lines:
-                line = line.rstrip()
-                if line and not line.startswith('#'):
-                    yield line
-            # except:
-            #     warn(file_path)
+            try:
+                lines = []
+                result = []
+                if source_type == 'url':
+                    r = requests.get(file_path)
+                    if r.status_code == 200:
+                        lines = r.text.split('\n')
+                else:
+                    f = None
+                    try:
+                        f = open(file_path)
+                        lines = f.readlines()
+                    finally:
+                        if f:
+                            f.close()
+
+                label = ""
+                for line in lines:
+                    line = line.rstrip()
+                    if line.startswith('#'):
+                        label = line.lstrip("# ")
+                    elif not line:
+                        label = ""
+                    else:
+                        result.append({"label": label, "pattern": line})
+                return result
+            except:
+                warn(file_path)
 
         file_path = file_path.strip()
         if regex.search(r'^http[s]://', file_path):
-            return set([p for p in read_file(file_path, 'url')])
+            return read_file(file_path, 'url')
         else:
-            return set([p for p in read_file(file_path)])
+            return read_file(file_path)
 
     def parser(self):
         query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
