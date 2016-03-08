@@ -96,7 +96,7 @@ class Poirot(object):
     def report(self):
         """Render findings in the console"""
 
-        found_evidence = any(len(f) > 1 for f in self.findings.values())
+        found_evidence = any(len(f) > 0 for f in self.findings.values())
         if found_evidence:
             if self.case.verbose:
                 self.client = ConsoleClient()
