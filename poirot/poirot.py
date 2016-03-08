@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-import argparse
 import os
 import regex
 import requests
 import sys
+from argparse import ArgumentParser
 from tqdm import tqdm
 
 from .helpers import clone_pull, merge_dicts, parse_post, parse_pre
@@ -208,7 +208,7 @@ class Case(object):
             return read_file(file_path)
 
     def parser(self):
-        query = argparse.ArgumentParser(prog='poirot', description="""Poirot:
+        query = ArgumentParser(prog='poirot', description="""Poirot:
                                         Mind Your Language""")
         query.add_argument('--url', '-u',
                            dest='url',

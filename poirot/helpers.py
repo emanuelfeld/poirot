@@ -1,6 +1,4 @@
-import os
 import sys
-import argparse
 import regex
 import subprocess
 from .style import style
@@ -74,7 +72,6 @@ def execute_cmd(cmd):
     """
     Executes a command and returns the result and error output.
     """
-
     try:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (out, err) = popen.communicate()
@@ -289,4 +286,3 @@ def parse_diff_lines(diff, line_re, pattern_re):
             if pattern_re.search(line):
                 yield {"line": line_num, "text": line[1:].strip()}
             line_num += 1
-
