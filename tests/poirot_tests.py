@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+import os
+
 from poirot.poirot import Case, Poirot
 from poirot.style import *
 from nose.tools import *
@@ -5,35 +8,51 @@ from poirot.helpers import *
 
 
 def setUp():
-    global case, poirot
+    global case, poirot, test_repo, test_dir
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    test_repo = 'https://github.com/DCgov/poirot-test-repo.git'
+    test_dir = '{}/fixtures'.format(current_dir)
     args = [
                 '-u',
-                'https://github.com/DCgov/poirot-test-repo.git',
+                test_repo,
                 '--revlist=all',
-                '--dir=tests/fixtures',
+                '--dir={dir}'.format(dir=test_dir),
                 '--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/DCgov/poirot-patterns/master/default.txt',
                 '--term=frabjous'
             ]
     case = Case(args)
-    case_parser_test()
     poirot = Poirot(case)
     poirot.investigate()
-    find_matches_test()
-    style_color_test()
 
 
 def tearDown():
     pass
 
 
-def case_parser_test():
+def test_execute_cmd():
+    (out, err) = execute_cmd(['echo', '人'])
+    eq_(out.find('人') == 0, True)
+    eq_(err, '')
+
+
+def test_ask():
+    response = ask(question='Answer y', options=['y', 'n'], response='y')
+    eq_(response, 'y')
+
+
+def test_merge_dicts():
+    merged = merge_dicts({"a": True, "b": False}, {"a": False})
+    eq_(merged, {"a": False, "b": False})
+
+
+def test_case_parser():
     eq_(len(case.__dict__), 11)
     eq_(len(case.patterns), 18)
     eq_(case.revlist, ['--all'])
     eq_(case.git_url, 'https://github.com/DCgov/poirot-test-repo.git')
 
 
-def find_matches_test():
+def test_find_matches():
     frabjous = poirot.findings['frabjous']
     eq_(frabjous['f0a6ebc']['author_email'], 'emanuelfeld@users.noreply.github.com')
     eq_(len(frabjous), 4)
@@ -48,6 +67,25 @@ def find_matches_test():
     ok_('log' in password['2f04563'].keys())
 
 
-def style_color_test():
+def test_parse_post_diff():
+    results = [(sha, metadata) for sha, metadata in parse_post(target='diff', pattern='frabjous', git_dir='{}/.git'.format(test_dir), revlist='cd956e8^!')]
+    eq_(len(results), 1)
+    eq_(results[0][0], 'cd956e8')
+    eq_(len(results[0][1]['files']), 1)
+
+
+def test_parse_post_message():
+    results = [(sha, metadata) for sha, metadata in parse_post(target='message', pattern='fake@fake.biz', git_dir='{}/.git'.format(test_dir), revlist='--all')]
+    eq_(len(results), 1)
+    eq_(results[0][0], '49a1c77')
+    eq_(results[0][1]['log'].find('fake@fake.biz') == 0, True)
+
+
+def test_chunk_text():
+    output = chunk_text(text='a b c d e f g', cutoff=3, offset=0).split('\n')
+    eq_(output[0], 'a b')
+
+
+def test_style_color():
     for code in style_codes:
         ok_(style("testing", code))

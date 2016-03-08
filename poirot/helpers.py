@@ -1,14 +1,12 @@
-import os
 import sys
-import argparse
 import regex
 import subprocess
 from .style import style
 
 
-def ask(question, options, formatting=None):
+def ask(question, options, response=None, formatting=None):
     """
-    Takes a question for raw_input and a set of options
+    Takes a question for raw_input and a set/list of options
     that answer the question. Bugs the user until they
     choose one of the prescribed options.
 
@@ -20,8 +18,6 @@ def ask(question, options, formatting=None):
     Returns:
         response (str): The chosen `options` item.
     """
-
-    response = ""
 
     get_input = input
     if sys.version_info[:2] <= (2, 7):
@@ -74,7 +70,6 @@ def execute_cmd(cmd):
     """
     Executes a command and returns the result and error output.
     """
-
     try:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (out, err) = popen.communicate()
@@ -289,4 +284,3 @@ def parse_diff_lines(diff, line_re, pattern_re):
             if pattern_re.search(line):
                 yield {"line": line_num, "text": line[1:].strip()}
             line_num += 1
-
