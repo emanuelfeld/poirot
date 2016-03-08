@@ -4,9 +4,9 @@ import subprocess
 from .style import style
 
 
-def ask(question, options, formatting=None):
+def ask(question, options, response=None, formatting=None):
     """
-    Takes a question for raw_input and a set of options
+    Takes a question for raw_input and a set/list of options
     that answer the question. Bugs the user until they
     choose one of the prescribed options.
 
@@ -18,8 +18,6 @@ def ask(question, options, formatting=None):
     Returns:
         response (str): The chosen `options` item.
     """
-
-    response = ""
 
     get_input = input
     if sys.version_info[:2] <= (2, 7):
