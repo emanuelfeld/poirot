@@ -12,38 +12,38 @@ from .clients import render
 
 def main(args=sys.argv, render_results=True):
     args.pop(0)
-    case = parse_arguments(args)
+    info = parse_arguments(args)
     results = {}
-    if not os.path.exists(case['git_dir']):
+    if not os.path.exists(info['git_dir']):
         raise IOError('Invalid .git directory: {dir}\nSpecify '
                       'the correct local directory with '
-                      '--dir'.format(dir=case['git_dir']))
-    if case['staged']:
+                      '--dir'.format(dir=info['git_dir']))
+    if info['staged']:
         print(style('Investigating staged revisions', 'blue'))
-        for pattern in case['patterns']:
-            result = parse_pre(pattern, case['repo_dir'])
+        for pattern in info['patterns']:
+            result = parse_pre(pattern, info['repo_dir'])
             results[pattern] = {'staged': {'files': result}} if result else {}
     else:
-        if case['git_url']:
-            clone_pull(case['git_url'], case['repo_dir'])
-        for pattern in case['patterns']:
+        if info['git_url']:
+            clone_pull(info['git_url'], info['repo_dir'])
+        for pattern in info['patterns']:
             results[pattern] = {}
-            for revision in case['revlist']:
-                merge_post('diff', pattern, revision, case, results)
-                merge_post('message', pattern, revision, case, results)
+            for revision in info['revlist']:
+                merge_post('diff', pattern, revision, info, results)
+                merge_post('message', pattern, revision, info, results)
     if not render_results:
         return results
     found_evidence = any(len(f) for f in results.values())
     if found_evidence:
-        render(results, case)
+        render(results, info)
         sys.exit(1)
     else:
         print(style("Poirot didn't find anything!", 'darkblue'))
         sys.exit(0)
 
 
-def merge_post(item_type, pattern, revision, case, results):
-    for commit, metadata in parse_post(item_type, pattern, revision, case):
+def merge_post(item_type, pattern, revision, info, results):
+    for commit, metadata in parse_post(item_type, pattern, revision, info):
         if not hasattr(results[pattern], commit):
             results[pattern][commit] = {}
         results[pattern][commit] = merge_dicts(results[pattern][commit], metadata)
@@ -94,7 +94,7 @@ def parse_pre(pattern, repo_dir):
     return staged_diffs
 
 
-def parse_post(target, pattern, revlist, case):
+def parse_post(target, pattern, revlist, info):
     """
     Takes restrictions on the elements of the revision history (message or diff)
     to search and yields a matching revision's SHA and the message or file name,
@@ -103,11 +103,8 @@ def parse_post(target, pattern, revlist, case):
     Args:
         target: The revision component being grep searched ('message' or 'diff').
         pattern: A single text pattern to search for.
-        git_dir: The local path to the repo's git directory.
         revlist: The revision or revision range to be searched.
-        author: (Optional) Authorship restriction on the revisions.
-        before: (Option) Date restriction on the revisions.
-        after: (Option) Date restriction on the revisions.
+        info: Parsed arguments
 
     Yields:
         sha: The SHA or a revision matching the search.
@@ -119,14 +116,14 @@ def parse_post(target, pattern, revlist, case):
     deleted_re = regex.compile(r'^deleted file')
     line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
-    out = get_matching_revisions(target, pattern, revlist, case)
+    out = get_matching_revisions(target, pattern, revlist, info)
 
     for item in out:
         sha, metadata = parse_log_metadata(item)
         if target == 'message':
             yield sha, metadata
         else:
-            show_cmd = ['git', '--git-dir', case['git_dir'], 'show', sha, '--no-color', '--unified=0']
+            show_cmd = ['git', '--git-dir', info['git_dir'], 'show', sha, '--no-color', '--unified=0']
             (out, err) = execute_cmd(show_cmd)
             file_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
             if file_diffs:
@@ -134,9 +131,9 @@ def parse_post(target, pattern, revlist, case):
                 yield sha, metadata
 
 
-def get_matching_revisions(target, pattern, revlist, case):
+def get_matching_revisions(target, pattern, revlist, info):
 
-    cmd = ['git', '--git-dir', case['git_dir'], 'log', revlist, '-i', '-E', '--oneline']
+    cmd = ['git', '--git-dir', info['git_dir'], 'log', revlist, '-i', '-E', '--oneline']
 
     if target == 'message':
         cmd.extend(['--format=COMMIT: %h AUTHORDATE: %aD AUTHORNAME: %an AUTHOREMAIL: %ae LOG: %s %b'])
@@ -145,12 +142,12 @@ def get_matching_revisions(target, pattern, revlist, case):
         cmd.extend(['--format=COMMIT: %h AUTHORDATE: %aD AUTHORNAME: %an AUTHOREMAIL: %ae'])
         cmd.extend(['-G' + pattern])
 
-    if case['author'] is not None:
-        cmd.extend(['--author', case['author']])
-    if case['before'] is not None:
-        cmd.extend(['--before', case['before']])
-    if case['after'] is not None:
-        cmd.extend(['--after', case['after']])
+    if info['author'] is not None:
+        cmd.extend(['--author', info['author']])
+    if info['before'] is not None:
+        cmd.extend(['--before', info['before']])
+    if info['after'] is not None:
+        cmd.extend(['--after', info['after']])
 
     (out, err) = execute_cmd(cmd)
     out = out.strip().split('COMMIT: ')[1:]

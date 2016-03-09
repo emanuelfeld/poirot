@@ -10,7 +10,7 @@ from poirot.parser import parse_arguments
 
 
 def setUp():
-    global case, args, test_repo, test_dir
+    global info, args, test_repo, test_dir
     current_dir = os.path.dirname(os.path.realpath(__file__))
     test_repo = 'https://github.com/DCgov/poirot-test-repo.git'
     test_dir = '{}/fixtures'.format(current_dir)
@@ -21,7 +21,7 @@ def setUp():
                 '--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/DCgov/poirot-patterns/master/default.txt',
                 '--term=frabjous'
             ]
-    case = parse_arguments(args)
+    info = parse_arguments(args)
 
 
 def tearDown():
@@ -44,11 +44,11 @@ def test_merge_dicts():
     eq_(merged, {"a": False, "b": False})
 
 
-def test_case_parser():
-    eq_(len(case), 11)
-    eq_(len(case['patterns']), 18)
-    eq_(case['revlist'], ['--all'])
-    eq_(case['git_url'], 'https://github.com/DCgov/poirot-test-repo.git')
+def test_info_parser():
+    eq_(len(info), 11)
+    eq_(len(info['patterns']), 18)
+    eq_(info['revlist'], ['--all'])
+    eq_(info['git_url'], 'https://github.com/DCgov/poirot-test-repo.git')
 
 
 def test_find_matches():
@@ -59,23 +59,23 @@ def test_find_matches():
     eq_(len(frabjous['f0a6ebc']['files']), 2)
     eq_(frabjous['f0a6ebc']['files'][0]['matches'][0]['line'], 12)
     eq_(frabjous['f0a6ebc']['files'][1]['matches'][0]['line'], 2)
-    eq_(case['patterns']['frabjous'], None)
+    eq_(info['patterns']['frabjous'], None)
 
     password = results['pass(word?)[[:blank:]]*[=:][[:blank:]]*.+']
     eq_(len(password), 2)
-    eq_(case['patterns']['pass(word?)[[:blank:]]*[=:][[:blank:]]*.+'], 'Usernames and Passwords')
+    eq_(info['patterns']['pass(word?)[[:blank:]]*[=:][[:blank:]]*.+'], 'Usernames and Passwords')
     ok_('log' in password['2f04563'].keys())
 
 
 def test_parse_post_diff():
-    results = [(sha, metadata) for sha, metadata in parse_post(target='diff', pattern='frabjous', revlist='cd956e8^!', case=case)]
+    results = [(sha, metadata) for sha, metadata in parse_post(target='diff', pattern='frabjous', revlist='cd956e8^!', info=info)]
     eq_(len(results), 1)
     eq_(results[0][0], 'cd956e8')
     eq_(len(results[0][1]['files']), 1)
 
 
 def test_parse_post_message():
-    results = [(sha, metadata) for sha, metadata in parse_post(target='message', pattern='fake@fake.biz', revlist='--all', case=case)]
+    results = [(sha, metadata) for sha, metadata in parse_post(target='message', pattern='fake@fake.biz', revlist='--all', info=info)]
     eq_(len(results), 1)
     eq_(results[0][0], '49a1c77')
     eq_(results[0][1]['log'].find('fake@fake.biz') == 0, True)

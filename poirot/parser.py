@@ -1,5 +1,7 @@
 # -*- codes: utf-8 -*-
 
+from __future__ import print_function
+
 import os
 import sys
 import regex
@@ -65,7 +67,8 @@ def parse_patterns(path):
             with open(path) as infile:
                 lines = infile.readlines()
         label = None
-        for line in map(str.strip, lines):
+        for line in lines:
+            line = str(line).strip()
             if line.startswith('#'):
                 label = line.lstrip('# ')
             elif not line:
@@ -84,16 +87,16 @@ def format_arguments(args):
         if args.revlist == 'all':
             return ['--all']
         else:
-            return args.revlist.strip().split(',')
+            return map(str.strip, args.revlist.strip().split(','))
 
     def format_patterns():
         patterns = {}
         if args.term:
             patterns[args.term] = None
         try:
-            file_list = args.patterns.strip().split(',')
+            file_list = map(str.strip, args.patterns.strip().split(','))
             for file in filter(lambda x: len(x), file_list):
-                patterns = merge_dicts(patterns, parse_patterns(file.strip()))
+                patterns = merge_dicts(patterns, parse_patterns(file))
         except AttributeError:
             pass
         finally:
