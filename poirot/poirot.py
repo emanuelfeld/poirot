@@ -2,270 +2,271 @@ from __future__ import print_function
 
 import os
 import regex
-import requests
 import sys
-from argparse import ArgumentParser
-from tqdm import tqdm
 
-from .helpers import clone_pull, merge_dicts, parse_post, parse_pre
+from .helpers import ask, merge_dicts, execute_cmd
 from .style import style
-from .clients import ConsoleClient, ConsoleThinClient
+from .parser import parse_arguments
+from .clients import render
 
 
-class Poirot(object):
+def main(args=sys.argv, render_results=True):
+    args.pop(0)
+    case = parse_arguments(args)
+    results = {}
+    if not os.path.exists(case['git_dir']):
+        raise IOError('Invalid .git directory: {dir}\nSpecify '
+                      'the correct local directory with '
+                      '--dir'.format(dir=case['git_dir']))
+    if case['staged']:
+        print(style('Investigating staged revisions', 'blue'))
+        for pattern in case['patterns']:
+            result = parse_pre(pattern, case['repo_dir'])
+            results[pattern] = {'staged': {'files': result}} if result else {}
+    else:
+        if case['git_url']:
+            clone_pull(case['git_url'], case['repo_dir'])
+        for pattern in case['patterns']:
+            results[pattern] = {}
+            for revision in case['revlist']:
+                merge_post('diff', pattern, revision, case, results)
+                merge_post('message', pattern, revision, case, results)
+    if not render_results:
+        return results
+    found_evidence = any(len(f) for f in results.values())
+    if found_evidence:
+        render(results, case)
+        sys.exit(1)
+    else:
+        print(style("Poirot didn't find anything!", 'darkblue'))
+        sys.exit(0)
 
-    def __init__(self, case):
-        """
-        Poirot needs to know who he's working for (client) and
-        the details of the case. He also likes to get things in
-        order by setting up a place to store findings that match
-        key patterns.
 
-        Args:
-            client: ConsoleClient or ConsoleClientThin object
-            case: Case object
-        """
+def merge_post(item_type, pattern, revision, case, results):
+    for commit, metadata in parse_post(item_type, pattern, revision, case):
+        if not hasattr(results[pattern], commit):
+            results[pattern][commit] = {}
+        results[pattern][commit] = merge_dicts(results[pattern][commit], metadata)
+    return results
 
-        self.case = case
-        self.findings = {p["pattern"]: {"label": p["label"]} for p in case.patterns}
 
-    def prepare(self):
-        """
-        Before conducting his investigation, Poirot must work out
-        what events (revisions) to consider. He will then gather
-        (clone, pull, or locate) the information to go through.
-        """
+def clone_pull(git_url, repo_dir):
+    """
+    Clones a repository from `git_url` or optionally does a 
+    git pull if the repository already exists at `repo_dir`.
+    """
 
-        case = self.case
+    try:
+        cmd = ['git', 'clone', git_url, repo_dir]
+        subprocess.check_output(cmd, universal_newlines=True)
 
-        if case.staged:
-            print(style('Investigating staged revisions', 'blue'))
+    except subprocess.CalledProcessError:
+        response = ask('Do you want to git-pull?', ['y', 'n'], 'darkblue')
+        if response == "y":
+            cmd = ['git', '--git-dir=%s/.git' % (repo_dir), 'pull']
+            out = subprocess.check_output(cmd, universal_newlines=True)
+            print(style('Git says: {}'.format(out), 'smoke'))
 
-        if case.git_url:
-            clone_pull(case.git_url, case.repo_dir)
+    except:
+        error = sys.exc_info()[0]
+        print(style('Problem writing to destination: {}\n'.format(repo_dir), 'red'), error)
+        raise
+
+
+def parse_pre(pattern, repo_dir):
+    """
+    Takes a text pattern and local repo directory and returns the file name,
+    line number, and text matching the given pattern in a staged revision.
+
+    Args:
+        pattern: A single text pattern to search for.
+        repo_dir: The local path the repo's base directory.
+    """
+    pattern_re = regex.compile(pattern, regex.I)
+    deleted_re = regex.compile(r'^deleted file')
+    line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
+
+    cmd = ['git', 'diff', '--staged', '--unified=0', '--', repo_dir]
+    (out, err) = execute_cmd(cmd)
+
+    staged_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
+
+    return staged_diffs
+
+
+def parse_post(target, pattern, revlist, case):
+    """
+    Takes restrictions on the elements of the revision history (message or diff)
+    to search and yields a matching revision's SHA and the message or file name,
+    line number, and text matching the given pattern, as well as its authorship.
+
+    Args:
+        target: The revision component being grep searched ('message' or 'diff').
+        pattern: A single text pattern to search for.
+        git_dir: The local path to the repo's git directory.
+        revlist: The revision or revision range to be searched.
+        author: (Optional) Authorship restriction on the revisions.
+        before: (Option) Date restriction on the revisions.
+        after: (Option) Date restriction on the revisions.
+
+    Yields:
+        sha: The SHA or a revision matching the search.
+        metadata: The matching revision message or line number and text, and Authorship
+            information.
+    """
+
+    pattern_re = regex.compile(r'{}'.format(pattern), regex.I)
+    deleted_re = regex.compile(r'^deleted file')
+    line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
+
+    out = get_matching_revisions(target, pattern, revlist, case)
+
+    for item in out:
+        sha, metadata = parse_log_metadata(item)
+        if target == 'message':
+            yield sha, metadata
         else:
-            print(style('Investigating local revisions', 'blue'))
-            if not os.path.exists(case.git_dir):
-                raise IOError('Invalid .git directory: {}\nSpecify '
-                              'the correct local directory with '
-                              '--dir'.format(case.git_dir))
-
-    def investigate(self):
-        """
-        Set up and initiate parsing of revisions
-        in the given list of individual revisions
-        or revision subsets, for the patterns
-        provided.
-        """
-
-        case = self.case
-
-        if case.staged:
-            for p in case.patterns:
-                pattern = p["pattern"]
-                self.findings[pattern] = parse_pre(pattern, case.repo_dir)
-
-        else:
-            for p in tqdm(case.patterns):
-                pattern = p["pattern"]
-                for revision in case.revlist:
-                    parser_args = {
-                        'git_dir': case.git_dir,
-                        'revlist': revision,
-                        'author': case.author,
-                        'before': case.before,
-                        'after': case.after
-                    }
-                    self.parse_post('message', pattern, parser_args)
-                    self.parse_post('diff', pattern, parser_args)
-
-    def parse_post(self, item_type, pattern, parser_args):
-        """
-        Call commit log and diff parsers on a revision
-        or revision subset and add matching commit logs
-        and diffs to findings.
-        """
-
-        finding = self.findings[pattern]
-
-        for commit, metadata in parse_post(item_type, pattern, **parser_args):
-            if not hasattr(finding, commit):
-                finding[commit] = {}
-            finding[commit] = merge_dicts(finding[commit], metadata)
-
-    def report(self):
-        """Render findings in the console"""
-
-        found_evidence = any(len(f) > 0 for f in self.findings.values())
-        if found_evidence:
-            if self.case.verbose:
-                self.client = ConsoleClient()
-            else:
-                self.client = ConsoleThinClient()
-            self.client.render(data=self.findings, info=self.case.__dict__)
-            sys.exit(1)
-        else:
-            print(style("Poirot didn't find anything!", 'darkblue'))
-            sys.exit(0)
+            show_cmd = ['git', '--git-dir', case['git_dir'], 'show', sha, '--no-color', '--unified=0']
+            (out, err) = execute_cmd(show_cmd)
+            file_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
+            if file_diffs:
+                metadata['files'] = file_diffs
+                yield sha, metadata
 
 
-class Case(object):
+def get_matching_revisions(target, pattern, revlist, case):
 
-    def __init__(self, args):
-        """
-        Sometimes the facts of a case come jumbled. Poirot sorts
-        them out.
-        """
+    cmd = ['git', '--git-dir', case['git_dir'], 'log', revlist, '-i', '-E', '--oneline']
 
-        facts = self.parser().parse_args(args)
+    if target == 'message':
+        cmd.extend(['--format=COMMIT: %h AUTHORDATE: %aD AUTHORNAME: %an AUTHOREMAIL: %ae LOG: %s %b'])
+        cmd.extend(['--grep', pattern])
+    elif target == 'diff':        
+        cmd.extend(['--format=COMMIT: %h AUTHORDATE: %aD AUTHORNAME: %an AUTHOREMAIL: %ae'])
+        cmd.extend(['-G' + pattern])
 
-        self.before = facts.before
-        self.after = facts.after
-        self.author = facts.author
-        self.staged = facts.staged
-        self.verbose = facts.verbose
+    if case['author'] is not None:
+        cmd.extend(['--author', case['author']])
+    if case['before'] is not None:
+        cmd.extend(['--before', case['before']])
+    if case['after'] is not None:
+        cmd.extend(['--after', case['after']])
 
-        self.git_url = facts.url.rstrip('/')
-        self.repo_url = regex.sub(r'\.git$', '', self.git_url)
-        self.repo_dir = facts.dir
-        self.git_dir = facts.dir + '/.git'
+    (out, err) = execute_cmd(cmd)
+    out = out.strip().split('COMMIT: ')[1:]
+    return out
 
-        if facts.revlist == 'all':
-            self.revlist = ['--all']
-        else:
-            self.revlist = facts.revlist.strip().split(',')
 
-        patterns = []
-        if facts.term:
-            patterns.append({"pattern": facts.term, "label": ""})
+def parse_log_metadata(log):
+    """
+    Parses the information contained in a pretty-formatted
+    --oneline commit log (i.e. the commit SHA, author's
+    name and email, the date the commit was authored, and,
+    optionally, the commit's message).
 
-        try:
-            pfile_list = facts.patterns.strip().split(',')
-            pfile_list = [pfile for pfile in pfile_list if pfile]
-            for pfile in pfile_list:
-                patterns.extend(self.add_patterns(pfile))
-        except AttributeError:
+    Args:
+        log (str): oneline pretty-formatted git log output
+
+    Returns:
+        commit (str): the revision's abbreviated SHA value.
+        metadata (dict): author name, email, date (and maybe
+            commit message).
+    """
+
+    metadata = {}
+    sha, log = log.split(' AUTHORDATE: ', 1)
+    metadata["author_date"], log = log.split(' AUTHORNAME: ', 1)
+    metadata["author_name"], log = log.split(' AUTHOREMAIL: ', 1)
+    try:
+        metadata["author_email"], metadata["log"] = log.split(' LOG: ', 1)
+    except ValueError:
+        metadata["author_email"] = log
+    metadata = {key: metadata[key].strip() for key in metadata.keys()}
+    return sha, metadata
+
+
+def parse_diff(text, pattern_re, deleted_re, line_re):
+    """
+    Takes a single revision and pattern. Returns the files and lines
+    in the revision that match the pattern.
+
+    Args:
+        git_dir: Path to the repo's git directory.
+        commit: A single revision's SHA.
+        pattern_re: Compiled pattern regex.
+        deleted_re: Compiled regex matching file deletions.
+        line_re: Compiled regex matching line number metadata.
+
+    Returns:
+        files (list[dict]): A list of dictionaries containing the
+            name of a file and any matching lines, with their text
+            and line number.
+    """
+
+    files = []
+    try:
+        diff_list = text.split('diff --git ')[1:]
+        for diff in diff_list:
+            (filename, lines) = split_diff(diff, deleted_re)
+            matches = [m for m in parse_diff_lines(lines, line_re, pattern_re)]
+            if matches:
+                files.append({"file": filename, "matches": matches})
+    except TypeError:
+        pass
+    finally:
+        return files
+
+
+def split_diff(diff, deleted_re):
+    """
+    Divides a diff into the file name and the rest of its
+    (split by newline).
+
+    Args:
+        diff: A single file's unified diff information
+        deleted: Compiled regex matching deleted files
+
+    Returns:
+        If the file was not deleted in the revision:
+
+        fname (str): The file's name
+        diff_lines (list[str]): Lines modified in `diff`.
+    """
+
+    try:
+        diff = diff.split('\n', 2)
+        if not deleted_re.match(diff[1]):
+            filename = diff[0].split(' b/', 1)[1]
+            diff = '@@' + diff[2].split('@@', 1)[1]
+            diff_lines = diff.split('\n')
+            return filename, diff_lines
+    except IndexError:
+        pass
+
+
+def parse_diff_lines(diff, line_re, pattern_re):
+    """
+    Takes the lines from a file's diff and yields them
+    if they were added.
+
+    Args:
+        diff: A single file's unified diff information.
+        line_re: Compiled regex matching line number information.
+        pattern_re: Compiled regex matching a given pattern.
+
+    Yields:
+        line_info: A dictionary for a line where additions were made
+            and which includes pattern_re. Contains the line's number
+            and text.
+    """
+
+    line_num = 0
+    for line in diff:
+        if not line:
             pass
-
-        if len(patterns) == 0:
-            print(style('No patterns given! Using default pattern set.', 'blue'))
-            pfile = os.path.dirname(os.path.realpath(__file__))
-            pfile = os.path.join(pfile, 'patterns/default.txt')
-            patterns.extend(self.add_patterns(pfile))
-
-        self.patterns = []
-        pattern_ids = set([p["pattern"] for p in patterns])
-        for p in patterns:
-            if p["pattern"] in pattern_ids:
-                self.patterns.append(p)
-                pattern_ids.remove(p["pattern"])
-
-    def add_patterns(self, file_path):
-        """
-        Takes a pattern file's path or url and yields its patterns
-        Args:
-            file_path: path or url to a newline-delimited text file
-        """
-        def warn(file_path):
-            warning = "Pattern file {} does not exist. "\
-                      "Specify the correct file path with --patterns".format(file_path)
-            print(style(warning, 'red'))
-
-        def read_file(file_path, source_type='local'):
-            try:
-                lines = []
-                result = []
-                if source_type == 'url':
-                    r = requests.get(file_path)
-                    if r.status_code == 200:
-                        lines = r.text.split('\n')
-                else:
-                    f = None
-                    try:
-                        f = open(file_path)
-                        lines = f.readlines()
-                    finally:
-                        if f:
-                            f.close()
-
-                label = ""
-                for line in lines:
-                    line = line.rstrip()
-                    if line.startswith('#'):
-                        label = line.lstrip("# ")
-                    elif not line:
-                        label = ""
-                    else:
-                        result.append({"label": label, "pattern": line})
-                return result
-            except:
-                warn(file_path)
-
-        file_path = file_path.strip()
-        if regex.search(r'^http[s]://', file_path):
-            return read_file(file_path, 'url')
-        else:
-            return read_file(file_path)
-
-    def parser(self):
-        query = ArgumentParser(prog='poirot', description="""Poirot:
-                                        Mind Your Language""")
-        query.add_argument('--url', '-u',
-                           dest='url',
-                           default='',
-                           action="store",
-                           help="""The repository's git URL,
-                                e.g. 'https://github.com/dcgov/poirot.git'.""")
-        query.add_argument('--dir', '-d',
-                           dest='dir',
-                           default=os.getcwd(),
-                           help="""The path to the local directory where the
-                                git repo is located or should be stored;
-                                defaults to the current directory.""")
-        query.add_argument('--term', '-t',
-                           dest="term",
-                           required=False,
-                           action='store',
-                           help="""A single string or regular expression
-                                to search for.""")
-        query.add_argument('--patterns', '-p',
-                           dest="patterns",
-                           action="store",
-                           default=False,
-                           help="""The path to the local file(s) containing strings
-                                or regular expressions to match against, each
-                                on a new line. Accepts a comma-separated list
-                                of file paths.""")
-        query.add_argument('--revlist', '-rl',
-                           dest='revlist',
-                           required=False,
-                           default='HEAD^!',
-                           help="""A comma-delimited list of revision (commit)
-                                ranges to search. Defaults to HEAD^!. Specify
-                                'all' to search the entire revision
-                                history.""")
-        query.add_argument('--before', '-b',
-                           dest='before',
-                           required=False,
-                           help="""Search commits prior to a given date,
-                                e.g., Dec-12-2015""")
-        query.add_argument('--after', '-a',
-                           dest='after',
-                           required=False,
-                           help="""Search commits after a given date,
-                                e.g., Jan-01-2015""")
-        query.add_argument('--author', '-au',
-                           dest='author',
-                           required=False,
-                           help="""Restrict to commits made by an AUTHOR. An email
-                                address is fine.""")
-        query.add_argument('--staged', '-st',
-                           dest='staged',
-                           action='store_true',
-                           help="""Flag to search staged modifications, instead of
-                                already committed ones.""")
-        query.add_argument('--verbose', '-v',
-                           dest='verbose',
-                           action='store_true',
-                           help="""Flag to output colorful, verbose results.""")
-        return query
+        elif line[0] == "@":
+            line_num = int(regex.sub(line_re, r'\1', line))
+        elif line[0] == "+":
+            if pattern_re.search(line):
+                yield {"line": line_num, "text": line[1:].strip()}
+            line_num += 1

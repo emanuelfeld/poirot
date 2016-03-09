@@ -39,7 +39,7 @@ setup(name='poirot',
       include_package_data=True,
       entry_points={
           'console_scripts': [
-              'poirot=poirot.commands:poirot',
+              'poirot=poirot.poirot:main',
               ]
       },
       zip_safe=False)
