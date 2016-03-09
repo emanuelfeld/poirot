@@ -1,8 +1,11 @@
+# -*- codes: utf-8 -*-
+
 from __future__ import print_function
 
 import os
 import regex
 import sys
+from tqdm import tqdm
 
 from .helpers import ask, merge_dicts, execute_cmd
 from .style import style
@@ -26,7 +29,7 @@ def main(args=sys.argv, render_results=True):
     else:
         if info['git_url']:
             clone_pull(info['git_url'], info['repo_dir'])
-        for pattern in info['patterns']:
+        for pattern in tqdm(info['patterns']):
             results[pattern] = {}
             for revision in info['revlist']:
                 merge_post('diff', pattern, revision, info, results)
@@ -201,6 +204,8 @@ def parse_diff(text, pattern_re, deleted_re, line_re):
     """
 
     files = []
+    if type(text) == bytes:
+        text = text.decode()
     diff_list = text.split('diff --git ')[1:]
     for diff in diff_list:
         try:
