@@ -16,14 +16,14 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
 {% for term in data %}{%if data[term] | length > 0 %} {{"Pattern"|style('bold')}}:  {{ term }}
 {% if info['patterns'][term] %} Description:  {{ info['patterns'][term] }}{%endif%}
-{% if info['staged']%} {% for file in data[term] | reject('equalto', 'label') %}
+{% if info['staged']%} {% for file in data[term]['staged']['files'] %}
   {{file['file']|style('darkgreen')|fail}}
  {%for match in file['matches']%}
     Line {{match['line']}}:
 {{match['text']|highlight(term)|chunk_text(80, 4)}} 
 {%endfor%} 
 {{"================================================================================="|style('gray')}}{%endfor%}
-{%else%}{% for commit in data[term] | reject('equalto', 'label') %}
+{%else%}{% for commit in data[term] %}
 {{"---------------------------------------------------------------------------------"|style('gray')}}
   Commit {{ info['repo_url']|style('darkblue')}}{{"/commit/"|style('darkblue')}}{{ commit |style('darkblue')}}
   Author {{ data[term][commit]["author_name"]}}, {{ data[term][commit]["author_email"]|strip}}

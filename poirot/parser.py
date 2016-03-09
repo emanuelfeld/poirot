@@ -87,14 +87,14 @@ def format_arguments(args):
         if args.revlist == 'all':
             return ['--all']
         else:
-            return map(str.strip, args.revlist.strip().split(','))
+            return [revision.strip() for revision in args.revlist.strip().split(',')]
 
     def format_patterns():
         patterns = {}
         if args.term:
             patterns[args.term] = None
         try:
-            file_list = map(str.strip, args.patterns.strip().split(','))
+            file_list = [file.strip() for file in args.patterns.strip().split(',')]
             for file in filter(lambda x: len(x), file_list):
                 patterns = merge_dicts(patterns, parse_patterns(file))
         except AttributeError:

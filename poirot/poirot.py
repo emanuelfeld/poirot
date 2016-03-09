@@ -87,8 +87,8 @@ def parse_pre(pattern, repo_dir):
     line_re = regex.compile(r'@@ \-[0-9,]+ \+([0-9]+)[, ].*')
 
     cmd = ['git', 'diff', '--staged', '--unified=0', '--', repo_dir]
-    (out, err) = execute_cmd(cmd)
 
+    (out, err) = execute_cmd(cmd)
     staged_diffs = parse_diff(out, pattern_re, deleted_re, line_re)
 
     return staged_diffs
@@ -201,17 +201,16 @@ def parse_diff(text, pattern_re, deleted_re, line_re):
     """
 
     files = []
-    try:
-        diff_list = text.split('diff --git ')[1:]
-        for diff in diff_list:
+    diff_list = text.split('diff --git ')[1:]
+    for diff in diff_list:
+        try:
             (filename, lines) = split_diff(diff, deleted_re)
             matches = [m for m in parse_diff_lines(lines, line_re, pattern_re)]
             if matches:
                 files.append({"file": filename, "matches": matches})
-    except TypeError:
-        pass
-    finally:
-        return files
+        except TypeError:
+            pass
+    return files
 
 
 def split_diff(diff, deleted_re):
@@ -229,7 +228,6 @@ def split_diff(diff, deleted_re):
         fname (str): The file's name
         diff_lines (list[str]): Lines modified in `diff`.
     """
-
     try:
         diff = diff.split('\n', 2)
         if not deleted_re.match(diff[1]):
