@@ -1,9 +1,11 @@
 # -*- codes: utf-8 -*-
 
 import os
+import sys
 import regex
 import requests
 from argparse import ArgumentParser
+
 from .style import style
 from .helpers import merge_dicts
 

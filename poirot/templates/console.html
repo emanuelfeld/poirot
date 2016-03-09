@@ -15,7 +15,7 @@
 Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"================================================================================="|style('gray')}}
 {% for term in data %}{%if data[term] | length > 0 %} {{"Pattern"|style('bold')}}:  {{ term }}
-{% if data[term]['label'] %} Description:  {{ data[term]['label'] }}{%endif%}
+{% if info['patterns'][term] %} Description:  {{ info['patterns'][term] }}{%endif%}
 {% if info['staged']%} {% for file in data[term] | reject('equalto', 'label') %}
   {{file['file']|style('darkgreen')|fail}}
  {%for match in file['matches']%}
