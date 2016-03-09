@@ -144,7 +144,7 @@ To set up a pre-commit hook for a particular repository, first install Poirot an
 
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > .git/hooks/pre-commit-poirot
     chmod +x .git/hooks/pre-commit-poirot
-    echo '.git/hooks/pre-commit-poirot -f "" -p ""' >> .git/hooks/pre-commit
+    echo '.git/hooks/pre-commit-poirot -f \"\" -p \"\"' >> .git/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit
 
 The :code:`-f` and :code:`-p` in the second to last line are flags for patterns folder and a comma-separated list of pattern files, respectively. These let you use patterns other than the default, if you would like, by providing their absolute path or URL.
@@ -177,7 +177,7 @@ To set a Poirot pre-commit hook for all your new repositories, you can add it to
     git config --global init.templatedir '~/.git_template'
     curl https://raw.githubusercontent.com/DCgov/poirot/master/pre-commit-poirot > ~/.git_template/hooks/pre-commit-poirot
     chmod +x ~/.git_template/hooks/pre-commit-poirot
-    echo '.git/hooks/pre-commit-poirot -f "" -p ""' >> ~/.git_template/hooks/pre-commit
+    echo '.git/hooks/pre-commit-poirot -f \"\" -p \"\"' >> ~/.git_template/hooks/pre-commit
     chmod +x ~/.git_template/hooks/pre-commit
 
 As in the `Single Repositories <https://github.com/DCgov/poirot#for-a-single-repository>`_ case, the :code:`-f` and :code:`-p` flags in the second to last line will let you use pattern files other than the default. If you don't care about that, you can run it as is.
