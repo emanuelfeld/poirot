@@ -8,7 +8,7 @@ with open('README_PYPI.rst') as file:
     long_description = file.read()
 
 setup(name='poirot',
-      version='0.1.0',
+      version='0.2.0',
       author='Emanuel Feld',
       author_email='elefbet@gmail.com',
       description="Investigate a Git repository's revision history to find text patterns.",
