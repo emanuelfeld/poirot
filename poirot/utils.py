@@ -1,13 +1,14 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import subprocess
 
-from .style import style
-
+from .filters import style
 
 def ask(question, options, response=None, formatting=None):
     """
     Takes a question for raw_input and a set/list of options
-    that answer the question. Bugs the user until they
+    that answer the question. Prompts the user until they
     choose one of the prescribed options.
 
     Args:
@@ -30,7 +31,7 @@ def ask(question, options, response=None, formatting=None):
 
 def merge_dicts(*dicts):
     """
-    Merge an arbitrary number of dicts.
+    Merges an arbitrary number of dicts.
 
     Note:
         Updates left to right, so will override existing
@@ -45,8 +46,9 @@ def merge_dicts(*dicts):
 
 def execute_cmd(cmd):
     """
-    Executes a command and returns the result and error output.
+    Executes a command and returns the stdout and stderr.
     """
+
     try:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
         (out, err) = popen.communicate()

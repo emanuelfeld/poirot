@@ -20,7 +20,7 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
   {{file['file']|style('darkgreen')|fail}}
  {%for match in file['matches']%}
     Line {{match['line']}}:
-{{match['text']|highlight(term)|chunk_text(80, 4)}} 
+{{match['text']|highlight(term)|wrap(80, 4)}} 
 {%endfor%} 
 {{"================================================================================="|style('gray')}}{%endfor%}
 {%else%}{% for commit in data[term] %}
@@ -30,12 +30,12 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
   Date {{ data[term][commit]["author_date"]}}{% if data[term][commit]["log"]%}
   
     {{"Commit Message"|style('darkgreen')|fail}}
-{{data[term][commit]["log"]|highlight(term)|chunk_text(80, 4)|strip}}{%endif%}{% for file in data[term][commit]['files']%}
+{{data[term][commit]["log"]|highlight(term)|wrap(80, 4)|strip}}{%endif%}{% for file in data[term][commit]['files']%}
 
   {{file['file']|style('darkgreen')|fail}}
 {% for match in file['matches']%}
     Line {{match['line']}}:
-{{match['text']|highlight(term)|chunk_text(80, 4)}}
+{{match['text']|highlight(term)|wrap(80, 4)}}
 {%endfor%}{%endfor%}
 {% endfor %}
 {{"================================================================================="|style('gray')}}

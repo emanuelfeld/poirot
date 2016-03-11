@@ -8,8 +8,8 @@ import regex
 import requests
 from argparse import ArgumentParser
 
-from .style import style
-from .helpers import merge_dicts
+from .filters import style
+from .utils import merge_dicts
 
 
 def parse_arguments(args):
@@ -51,13 +51,9 @@ def parse_arguments(args):
 
 
 def parse_patterns(path):
-    lines = []
     result = {}
-    source = 'local'
-    if regex.search(r'^http[s]://', path):
-        source = 'web'
     try:
-        if source == 'web':
+        if regex.search(r'^http[s]://', path):
             r = requests.get(path)
             if r.status_code == 200:
                 lines = r.text.split('\n')
@@ -87,14 +83,14 @@ def format_arguments(args):
         if args.revlist == 'all':
             return ['--all']
         else:
-            return [revision.strip() for revision in args.revlist.strip().split(',')]
+            return [revision.strip() for revision in args.revlist.split(',')]
 
     def format_patterns():
         patterns = {}
         if args.term:
             patterns[args.term] = None
         try:
-            file_list = [file.strip() for file in args.patterns.strip().split(',')]
+            file_list = [file.strip() for file in args.patterns.split(',')]
             for file in filter(lambda x: len(x), file_list):
                 patterns = merge_dicts(patterns, parse_patterns(file))
         except AttributeError:
@@ -102,8 +98,8 @@ def format_arguments(args):
         finally:
             if not patterns:
                 print(style('No patterns given! Using default pattern set.', 'blue'))
-                cwd = os.path.dirname(os.path.realpath(__file__))
-                default_file = os.path.join(cwd, 'patterns/default.txt')
+                file_dir = os.path.dirname(os.path.realpath(__file__))
+                default_file = os.path.join(file_dir, 'patterns/default.txt')
                 patterns = merge_dicts(patterns, parse_patterns(default_file))
             return patterns
 

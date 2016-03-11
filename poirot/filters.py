@@ -2,38 +2,38 @@
 
 import regex
 
-
-# Python character unicode
-
 prefix = "\033["
 reset = prefix + "0m"
 
 style_codes = {
-    "bold": prefix + "1m",
-    "gray": prefix + "1;30m",
-    "black": prefix + "30m",
-    "red": prefix + "1;31m",
-    "darkred": prefix + "31m",
-    "green": prefix + "1;32m",
-    "darkgreen": prefix + "32m",
-    "yellow": prefix + "1;33m",
-    "brown": prefix + "33m",
-    "blue": prefix + "1;34m",
-    "darkblue": prefix + "34m",
-    "fuscia": prefix + "1;35m",
-    "purple": prefix + "35m",
-    "cyan": prefix + "1;36m",
-    "darkcyan": prefix + "36m",
-    "white": prefix + "1;37m",
-    "smoke": prefix + "37m",
-    "default": prefix + "39m",
-    "yellow_bg": prefix + "43m",
-    "cyan_bg": prefix + "46m",
-    "blue_bg": prefix + "42m",
-    "orange_bg": prefix + "41m",
-    "white_bg": prefix + "47m",
-    "default_bg": prefix + "49m"
+    "bold": "1m",
+    "gray": "1;30m",
+    "black": "30m",
+    "red": "1;31m",
+    "darkred": "31m",
+    "green": "1;32m",
+    "darkgreen": "32m",
+    "yellow": "1;33m",
+    "brown": "33m",
+    "blue": "1;34m",
+    "darkblue": "34m",
+    "fuscia": "1;35m",
+    "purple": "35m",
+    "cyan": "1;36m",
+    "darkcyan": "36m",
+    "white": "1;37m",
+    "smoke": "37m",
+    "default": "39m",
+    "yellow_bg": "43m",
+    "cyan_bg": "46m",
+    "blue_bg": "42m",
+    "orange_bg": "41m",
+    "white_bg": "47m",
+    "default_bg": "49m"
 }
+
+for code in style_codes:
+    style_codes[code] = prefix + style_codes[code]
 
 symbol_codes = {
   'ok': u"\u2713",
@@ -76,7 +76,11 @@ def strip(text):
     return text.rstrip('\n ')
 
 
-def chunk_text(text, cutoff, offset):
+def wrap(text, cutoff, offset):
+    """
+    Wraps text at cutoff length and shifts it right by an offset amount
+    """
+
     cutoff = cutoff - offset
     join_str = '\n' + " "*offset
     split = text.split(' ')

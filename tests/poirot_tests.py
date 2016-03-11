@@ -3,9 +3,9 @@
 import os
 
 from poirot.poirot import *
-from poirot.style import *
+from poirot.filters import *
 from nose.tools import *
-from poirot.helpers import *
+from poirot.utils import *
 from poirot.parser import parse_arguments
 
 
@@ -68,21 +68,21 @@ def test_find_matches():
 
 
 def test_parse_post_diff():
-    results = [(sha, metadata) for sha, metadata in parse_post(target='diff', pattern='frabjous', revlist='cd956e8^!', info=info)]
+    results = [(sha, metadata) for sha, metadata in search_committed(target='diff', pattern='frabjous', revlist='cd956e8^!', info=info)]
     eq_(len(results), 1)
     eq_(results[0][0], 'cd956e8')
     eq_(len(results[0][1]['files']), 1)
 
 
 def test_parse_post_message():
-    results = [(sha, metadata) for sha, metadata in parse_post(target='message', pattern='fake@fake.biz', revlist='--all', info=info)]
+    results = [(sha, metadata) for sha, metadata in search_committed(target='message', pattern='fake@fake.biz', revlist='--all', info=info)]
     eq_(len(results), 1)
     eq_(results[0][0], '49a1c77')
     eq_(results[0][1]['log'].find('fake@fake.biz') == 0, True)
 
 
 def test_chunk_text():
-    output = chunk_text(text='a b c d e f g', cutoff=3, offset=0).split('\n')
+    output = wrap(text='a b c d e f g', cutoff=3, offset=0).split('\n')
     eq_(output[0], 'a b')
 
 

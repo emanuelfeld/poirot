@@ -5,17 +5,17 @@ Pattern: {{term}}
   File: {{file['file']}}
 {%for match in file['matches']%}
     Line {{match['line']}}
-{{match['text']|chunk_text(80, 5)|strip}}
+{{match['text']|wrap(80, 5)|strip}}
 {%endfor%}{%endfor%}{%else%}
 {% for commit in data[term] %}
  Commit: {{info['repo_url']}}/commit/{{commit}}
  Author: {{data[term][commit]['author_name']}}, {{data[term][commit]['author_email']|strip}}
  Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["log"]%}
   Commit Message
-{{data[term][commit]["log"]|chunk_text(80, 5)|strip}}
+{{data[term][commit]["log"]|wrap(80, 5)|strip}}
   {%endif%}{% for file in data[term][commit]['files']%}
   File: {{file['file']}}
 {%for match in file['matches']%}
     Line {{match['line']}}
-{{match['text']|chunk_text(80, 5)|strip}}
+{{match['text']|wrap(80, 5)|strip}}
 {%endfor%}{%endfor%}{%endfor%}{%endif%}{%endif%}{%endfor%}

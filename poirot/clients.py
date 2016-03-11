@@ -4,9 +4,9 @@ from __future__ import print_function
 
 import sys
 import subprocess
-
 from jinja2 import Environment, PackageLoader
-from .style import fail, ok, highlight, style, chunk_text, strip
+
+from .filters import fail, ok, highlight, style, wrap, strip
 
 
 def render(results, case):
@@ -14,7 +14,7 @@ def render(results, case):
     env.filters['ok'] = ok
     env.filters['fail'] = fail
     env.filters['style'] = style
-    env.filters['chunk_text'] = chunk_text
+    env.filters['wrap'] = wrap
     env.filters['strip'] = strip
     env.filters['highlight'] = highlight
 
