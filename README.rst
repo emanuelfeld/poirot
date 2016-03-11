@@ -204,7 +204,7 @@ Poirot is part of the standard DC Government open source development toolkit. On
 
     pip install poirot civicjson groupthink
 
-This installs Poirot, in addition to the [Civic.JSON-CLI](https://github.com/dcgov/civic.json-cli) (a Python package that helps you document your code projects with a civic.json file), and [Groupthink](https://github.com/dcgov/groupthink) (another Python package that will allow you to manage project set-up scripts).
+This installs Poirot, in addition to the `Civic.JSON-CLI <https://github.com/dcgov/civic.json-cli>`_ (a Python package that helps you document your code projects with a civic.json file), and `Groupthink <https://github.com/dcgov/groupthink>`_ (another Python package that will allow you to manage project set-up scripts).
 
 Next, install the dcgov-cli scripts by running:
 
@@ -218,9 +218,9 @@ When you want to start an open source DC Government project, go to your new proj
 
     dcgov init
 
-This will download the standard DC Government open source [license and contributing files](https://github.com/dcgov/license), set up Poirot as a pre-commit hook to run whenever you attempt to commit changes to the project from the command line, and give you the option to install a civic.json file.
+This will download the standard DC Government open source `license and contributing files <https://github.com/dcgov/license>`_, set up Poirot as a pre-commit hook to run whenever you attempt to commit changes to the project from the command line, and give you the option to install a civic.json file.
 
-Read more about the [civic.json standard](http://open.dc.gov/civic.json), the [dcgov-cli scripts](https://github.com/dcgov/dcgov-cli), and [groupthink](https://github.com/dcgov/groupthink).
+Read more about the `civic.json standard <http://open.dc.gov/civic.json>`_, the `dcgov-cli scripts <https://github.com/dcgov/dcgov-cli>`_, and `groupthink <https://github.com/dcgov/groupthink>`_.
 
 Getting Involved
 =================
