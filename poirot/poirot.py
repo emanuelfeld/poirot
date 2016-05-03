@@ -14,6 +14,11 @@ from .parser import parse_arguments
 from .clients import render
 
 
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+
+
 def main(args=sys.argv, render_results=True):
     args.pop(0)
     info = parse_arguments(args)

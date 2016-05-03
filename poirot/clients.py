@@ -7,16 +7,21 @@ import subprocess
 from jinja2 import Environment, PackageLoader
 
 from .filters import fail, ok, highlight, style, wrap, strip
+from .utils import merge_dicts
 
 
 def render(results, case):
     env = Environment(loader=PackageLoader('poirot', 'templates'))
-    env.filters['ok'] = ok
-    env.filters['fail'] = fail
-    env.filters['style'] = style
-    env.filters['wrap'] = wrap
-    env.filters['strip'] = strip
-    env.filters['highlight'] = highlight
+    filters = {
+        'ok': ok,
+        'fail': fail,
+        'style': style,
+        'wrap': wrap,
+        'strip': strip,
+        'highlight': highlight
+    }
+
+    env.filters = merge_dicts(env.filters, filters)
 
     if not case['verbose']:
         template = env.get_template('console_thin.html')

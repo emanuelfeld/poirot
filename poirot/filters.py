@@ -36,8 +36,8 @@ for code in style_codes:
     style_codes[code] = prefix + style_codes[code]
 
 symbol_codes = {
-  'ok': u"\u2713",
-  'fail': u"\u2716",
+    'ok': u"\u2713",
+    'fail': u"\u2716",
 }
 
 
@@ -76,29 +76,31 @@ def strip(text):
     return text.rstrip('\n ')
 
 
-def wrap(text, cutoff, offset):
+def wrap(text, line_length, padding):
     """
-    Wraps text at cutoff length and shifts it right by an offset amount
+    Wraps text at cutoff line_length and shifts it right by an
+    padding amount
     """
 
-    cutoff = cutoff - offset
-    join_str = '\n' + " "*offset
-    split = text.split(' ')
-    chunk = ''
-    chunked = []
-    while len(split):
-        word = split.pop(0)
-        word = word.strip(' \n')
-        if not chunk and len(word) < cutoff:
-            chunk = word
-        elif not chunk and len(word) > cutoff:
-            chunked.append(word)
-        elif len(chunk) + len(word) < cutoff:
-            chunk = "%s %s" % (chunk, word)
+    line_length = line_length - padding
+    join_str = '\n' + " " * padding
+    word_list = [word.strip(' \n') for word in text.split(' ')]
+    line = ''
+    line_list = []
+    while len(word_list):
+        word = word_list.pop(0)
+        if not line:
+            if len(word) < line_length:
+                line = word
+            else:
+                line_list.append(word)
         else:
-            chunked.append(chunk)
-            chunk = word
-    if chunk:
-        chunked.append(chunk)
-    output = '\n'.join(chunked).replace('\n', join_str)
-    return " "*offset + output
+            if len(line) + len(word) < line_length:
+                line = "%s %s" % (line, word)
+            else:
+                line_list.append(line)
+                line = word
+    if line:
+        line_list.append(line)
+    output = '\n'.join(line_list).replace('\n', join_str)
+    return " " * padding + output

@@ -5,6 +5,7 @@ import subprocess
 
 from .filters import style
 
+
 def ask(question, options, response=None, formatting=None):
     """
     Takes a question for raw_input and a set/list of options

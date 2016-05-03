@@ -15,12 +15,12 @@ def setUp():
     test_repo = 'https://github.com/DCgov/poirot-test-repo.git'
     test_dir = '{}/fixtures'.format(current_dir)
     args = [
-                '--url={url}'.format(url=test_repo),
-                '--revlist=all',
-                '--dir={dir}'.format(dir=test_dir),
-                '--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/DCgov/poirot-patterns/master/default.txt',
-                '--term=frabjous'
-            ]
+        '--url={url}'.format(url=test_repo),
+        '--revlist=all',
+        '--dir={dir}'.format(dir=test_dir),
+        '--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/DCgov/poirot-patterns/master/default.txt',
+        '--term=frabjous'
+    ]
     info = parse_arguments(args)
 
 
@@ -82,7 +82,7 @@ def test_parse_post_message():
 
 
 def test_chunk_text():
-    output = wrap(text='a b c d e f g', cutoff=3, offset=0).split('\n')
+    output = wrap(text='a b c d e f g', line_length=3, padding=0).split('\n')
     eq_(output[0], 'a b')
 
 
