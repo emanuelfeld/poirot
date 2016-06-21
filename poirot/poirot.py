@@ -17,18 +17,19 @@ from .clients import render
 
 
 def main(args=sys.argv, render_results=True):
-    args.pop(0)
     info = parse_arguments(args)
     results = {}
 
-    # checks that command invoked on a git directory
-    if not os.path.exists(info["git_dir"]):
-        raise IOError("""Invalid .git directory: {dir}\nSpecify
-                      the correct local directory with 
-                      --dir""".format(dir=info["git_dir"]))
+    def is_git_dir(dir):
+        # checks that command invoked on a git directory
+        if not os.path.exists(dir):
+            raise IOError("""Invalid .git directory: {dir}\nSpecify
+                          the correct local directory with 
+                          --dir""".format(dir=dir))
 
     # searches staged changes
     if info["staged"]:
+        is_git_dir(info["git_dir"])
         print(style("Investigating staged revisions", "blue"))
         for pattern in info["patterns"]:
             pattern = try_utf8_decode(pattern)
@@ -47,12 +48,13 @@ def main(args=sys.argv, render_results=True):
                 merge_committed("message", pattern, revision, info, results)
 
 
-    if not render_results:
-        return results
     # output results to JSON file
-    elif info["output"]:
+    if info["output"]:
         with open(info["output"], "w") as outfile:
             json.dump(results, outfile, ensure_ascii=False, indent=4)
+
+    if not render_results:
+        return results
     # render results in console if any pattern matches found
     elif any(results.values()):
         render(results, info)
@@ -81,7 +83,6 @@ def clone_pull(git_url, repo_dir):
     git pull if the repository already exists at `repo_dir`.
     Runs only if url argument provided to poirot command.
     """
-
     try:
         cmd = ["git", "clone", git_url, repo_dir]
         subprocess.check_output(cmd, universal_newlines=True)
