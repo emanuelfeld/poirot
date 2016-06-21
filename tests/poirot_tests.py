@@ -15,20 +15,20 @@ def setUp():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     test_repo = "https://github.com/emanuelfeld/poirot-test-repo.git"
     test_dir = "{}/fixtures".format(current_dir)
+    execute_cmd(["mkdir", test_dir])
     args = [
         "--url={url}".format(url=test_repo),
         "--revlist=all",
         "--dir={dir}".format(dir=test_dir),
         "--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/emanuelfeld/poirot-patterns/master/default.txt",
-        "--term=frabjous"
+        "--term=frabjous",
+        "--output={dir}/test_results.json".format(dir=test_dir)
     ]
     info = parse_arguments(args)
-    output_args = copy(args)
-    output_args = output_args + ["--output={dir}/test_results.json".format(dir=test_dir)]
 
 
 def tearDown():
-    execute_cmd(["rm", "{dir}/test_results.json".format(dir=test_dir)])
+    execute_cmd(["rm", "-rf", test_dir])
 
 
 def test_execute_cmd():
@@ -54,12 +54,6 @@ def test_info_parser():
     eq_(info["git_url"], "https://github.com/emanuelfeld/poirot-test-repo.git")
 
 
-def test_output():
-    main(output_args)
-    with open("{}/test_results.json".format(test_dir)) as infile:
-        results = json.load(infile)
-    eq_("cd956e8" in results["frabjous"], True)
-
 def test_find_matches():
     results = main(args=args, render_results=False)
     frabjous = results["frabjous"]
@@ -74,6 +68,11 @@ def test_find_matches():
     eq_(len(password), 2)
     eq_(info["patterns"]["pass(word?)[[:blank:]]*[=:][[:blank:]]*.+"], "Usernames and Passwords")
     ok_("log" in password["2f04563"].keys())
+
+    # test JSON output
+    with open("{}/test_results.json".format(test_dir)) as infile:
+        results = json.load(infile)
+    eq_("cd956e8" in results["frabjous"], True)
 
 
 def test_parse_post_diff():
