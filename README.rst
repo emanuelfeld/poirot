@@ -2,11 +2,11 @@
 Poirot
 ======
 
-.. image:: https://travis-ci.org/DCgov/poirot.svg?branch=master
-    :target: https://travis-ci.org/DCgov/poirot
+.. image:: https://travis-ci.org/emanuelfeld/poirot.svg?branch=master
+    :target: https://travis-ci.org/emanuelfeld/poirot
 
-.. image:: https://coveralls.io/repos/github/DCgov/poirot/badge.svg?branch=master
-    :target: https://coveralls.io/github/DCgov/poirot?branch=master
+.. image:: https://coveralls.io/repos/github/emanuelfeld/poirot/badge.svg?branch=master
+    :target: https://coveralls.io/github/emanuelfeld/poirot?branch=master
 
 .. image:: https://img.shields.io/pypi/v/poirot.svg
     :target: https://pypi.python.org/pypi/poirot
