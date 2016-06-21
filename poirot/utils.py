@@ -24,7 +24,7 @@ def ask(question, options, response=None, formatting=None):
     get_input = input
     if sys.version_info[:2] <= (2, 7):
         get_input = raw_input
-    prompt = '{} [{}] '.format(question, ', '.join(options))
+    prompt = "{} [{}] ".format(question, ", ".join(options))
     while response not in options:
         response = get_input(style(prompt, formatting))
     return response
@@ -57,11 +57,17 @@ def execute_cmd(cmd):
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         (out, err) = popen.communicate()
         try:
-            out = out.decode('latin-1')
-            out = out.encode('utf-8')
+            out = out.decode("latin-1")
+            out = out.encode("utf-8")
         except:
             error = sys.exc_info()[0]
-            print(style('There was a problem executing command: {}\n'.format(cmd), 'red'), error)
-            out = ''
-    finally:
-        return (out, err)
+            print(style("There was a problem executing command: {}\n".format(cmd), "red"), error)
+            out = ""
+    return (out, err)
+
+
+def try_utf8_decode(text):
+    try:
+        return text.decode("utf-8")
+    except AttributeError:
+        return text

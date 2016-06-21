@@ -2,10 +2,10 @@
 
 import regex
 
-prefix = "\033["
-reset = prefix + "0m"
+PREFIX = "\033["
+RESET = PREFIX + "0m"
 
-style_codes = {
+STYLE_CODES = {
     "bold": "1m",
     "gray": "1;30m",
     "black": "30m",
@@ -32,12 +32,12 @@ style_codes = {
     "default_bg": "49m"
 }
 
-for code in style_codes:
-    style_codes[code] = prefix + style_codes[code]
+for code in STYLE_CODES:
+    STYLE_CODES[code] = PREFIX + STYLE_CODES[code]
 
-symbol_codes = {
-    'ok': u"\u2713",
-    'fail': u"\u2716",
+SYMBOL_CODES = {
+    "ok": u"\u2713",
+    "fail": u"\u2716",
 }
 
 
@@ -45,7 +45,7 @@ def style(text, _code):
     """Takes a string and styles its print output"""
 
     try:
-        return "%s%s%s" % (style_codes[_code], text, reset)
+        return "%s%s%s" % (STYLE_CODES[_code], text, RESET)
     except:
         return "%s" % (text)
 
@@ -53,13 +53,13 @@ def style(text, _code):
 def ok(text):
     """Takes a string and prepends a green check to it"""
 
-    return "%s %s" % (style(symbol_codes['ok'], 'green'), text)
+    return "%s %s" % (style(SYMBOL_CODES["ok"], "green"), text)
 
 
-def fail(text=''):
+def fail(text=""):
     """Takes a string and prepends a red x mark to it"""
 
-    return "%s %s" % (style(symbol_codes['fail'], 'red'), text)
+    return "%s %s" % (style(SYMBOL_CODES["fail"], "red"), text)
 
 
 def highlight(text, pattern):
@@ -68,12 +68,11 @@ def highlight(text, pattern):
     pattern_re = regex.compile(pattern, regex.I)
     match = pattern_re.search(text)
     if match:
-        text = text.replace(match.group(0), style(match.group(0), 'red'))
+        text = text.replace(match.group(0), style(match.group(0), "red"))
     return text
 
-
 def strip(text):
-    return text.rstrip('\n ')
+    return text.rstrip("\n ")
 
 
 def wrap(text, line_length, padding):
@@ -83,9 +82,9 @@ def wrap(text, line_length, padding):
     """
 
     line_length = line_length - padding
-    join_str = '\n' + " " * padding
-    word_list = [word.strip(' \n') for word in text.split(' ')]
-    line = ''
+    join_str = "\n" + " " * padding
+    word_list = [word.strip(" \n") for word in text.split(" ")]
+    line = ""
     line_list = []
     while len(word_list):
         word = word_list.pop(0)
@@ -102,5 +101,5 @@ def wrap(text, line_length, padding):
                 line = word
     if line:
         line_list.append(line)
-    output = '\n'.join(line_list).replace('\n', join_str)
+    output = "\n".join(line_list).replace("\n", join_str)
     return " " * padding + output
