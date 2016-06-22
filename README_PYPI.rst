@@ -53,6 +53,7 @@ To invoke Poirot and see his findings, call him from the command line with :code
 * **--before**: Date restriction on revisions. Default value: none.
 * **--after**: Date restriction on revisions. Default value: none.
 * **--author**: Authorship restriction on revisions. Default value: none.
+* **--output**: File to output results as JSON. Default value: none.
 
 Examples
 _________
