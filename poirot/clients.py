@@ -6,14 +6,14 @@ import sys
 import subprocess
 from jinja2 import Environment, PackageLoader
 
-from .filters import fail, ok, highlight, style, wrap, strip
+from .filters import fail, okay, highlight, style, wrap, strip
 from .utils import merge_dicts
 
 
 def render(results, case):
     env = Environment(loader=PackageLoader("poirot", "templates"))
     filters = {
-        "ok": ok,
+        "okay": okay,
         "fail": fail,
         "style": style,
         "wrap": wrap,

@@ -36,7 +36,7 @@ for code in STYLE_CODES:
     STYLE_CODES[code] = PREFIX + STYLE_CODES[code]
 
 SYMBOL_CODES = {
-    "ok": u"\u2713",
+    "okay": u"\u2713",
     "fail": u"\u2716",
 }
 
@@ -50,20 +50,26 @@ def style(text, _code):
         return "%s" % (text)
 
 
-def ok(text):
-    """Takes a string and prepends a green check to it"""
+def okay(text):
+    """
+    Takes a string and prepends a green check to it
+    """
 
-    return "%s %s" % (style(SYMBOL_CODES["ok"], "green"), text)
+    return "%s %s" % (style(SYMBOL_CODES["okay"], "green"), text)
 
 
 def fail(text=""):
-    """Takes a string and prepends a red x mark to it"""
+    """
+    Takes a string and prepends a red x mark to it
+    """
 
     return "%s %s" % (style(SYMBOL_CODES["fail"], "red"), text)
 
 
 def highlight(text, pattern):
-    """Takes a string and highlights substrings matching a pattern"""
+    """
+    Takes a string and highlights substrings matching a pattern
+    """
 
     pattern_re = regex.compile(pattern, regex.I)
     match = pattern_re.search(text)
@@ -72,7 +78,9 @@ def highlight(text, pattern):
     return text
 
 def strip(text):
-    return text.rstrip("\n ")
+    """Strips whitespace from end of line"""
+
+    return text.rstrip("\n\t ")
 
 
 def wrap(text, line_length, padding):

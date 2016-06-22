@@ -30,7 +30,7 @@ def parse_arguments(args):
                                on a new line. Accepts a comma-separated list
                                of file paths.""")
     query.add_argument("--output", "-o", dest="output", required=False,
-                        help="""Output results as JSON to FILE.""")
+                       help="""Output results as JSON to FILE.""")
     query.add_argument("--revlist", "-rl", dest="revlist", required=False, default="HEAD^!",
                        help="""A comma-delimited list of revision (commit)
                                ranges to search. Defaults to HEAD^!. Specify
@@ -87,6 +87,8 @@ def parse_patterns(path):
 
 
 def format_arguments(args):
+    """Cleans up arguments passed to argparse"""
+
     def format_revlist():
         if args.revlist == "all":
             return ["--all"]
