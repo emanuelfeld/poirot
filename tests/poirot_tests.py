@@ -1,30 +1,32 @@
 # -*- coding: utf-8 -*-
 
 import os
-from copy import copy
+import json
 
-from poirot.poirot import *
-from poirot.filters import *
 from nose.tools import *
-from poirot.utils import *
+
+from poirot.poirot import Poirot, main
+from poirot.filters import style, STYLE_CODES, wrap
+from poirot.utils import ask, execute_cmd, merge_dicts
 from poirot.parser import parse_arguments
 
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+test_repo = "https://github.com/emanuelfeld/poirot-test-repo.git"
+test_dir = "{}/fixtures".format(current_dir)
+args = [
+    "--url={url}".format(url=test_repo),
+    "--revlist=all",
+    "--dir={dir}".format(dir=test_dir),
+    "--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/emanuelfeld/poirot-patterns/master/default.txt",
+    "--term=frabjous",
+    "--output={dir}/test_results.json".format(dir=test_dir)
+]
+info = parse_arguments(args)
+
+
 def setUp():
-    global info, args, output_args, test_repo, test_dir
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    test_repo = "https://github.com/emanuelfeld/poirot-test-repo.git"
-    test_dir = "{}/fixtures".format(current_dir)
     execute_cmd(["mkdir", test_dir])
-    args = [
-        "--url={url}".format(url=test_repo),
-        "--revlist=all",
-        "--dir={dir}".format(dir=test_dir),
-        "--patterns=poirot/patterns/default.txt, https://raw.githubusercontent.com/emanuelfeld/poirot-patterns/master/default.txt",
-        "--term=frabjous",
-        "--output={dir}/test_results.json".format(dir=test_dir)
-    ]
-    info = parse_arguments(args)
 
 
 def tearDown():
@@ -67,7 +69,7 @@ def test_find_matches():
     password = results["pass(word?)[[:blank:]]*[=:][[:blank:]]*.+"]
     eq_(len(password), 2)
     eq_(info["patterns"]["pass(word?)[[:blank:]]*[=:][[:blank:]]*.+"], "Usernames and Passwords")
-    ok_("log" in password["2f04563"].keys())
+    ok_("message" in password["2f04563"].keys())
 
     # test JSON output
     with open("{}/test_results.json".format(test_dir)) as infile:
@@ -76,17 +78,19 @@ def test_find_matches():
 
 
 def test_parse_post_diff():
-    results = [(sha, metadata) for sha, metadata in search_committed(target="diff", pattern="frabjous", revlist="cd956e8^!", info=info)]
+    P = Poirot(args=args, skip_clone_pull=True)
+    results = [(sha, metadata) for sha, metadata in P.search_committed(target="diff", pattern="frabjous", commit_range="cd956e8^!")]
     eq_(len(results), 1)
     eq_(results[0][0], "cd956e8")
     eq_(len(results[0][1]["files"]), 1)
 
 
 def test_parse_post_message():
-    results = [(sha, metadata) for sha, metadata in search_committed(target="message", pattern="fake@fake.biz", revlist="--all", info=info)]
+    P = Poirot(args=args, skip_clone_pull=True)
+    results = [(sha, metadata) for sha, metadata in P.search_committed(target="message", pattern="fake@fake.biz", commit_range="--all")]
     eq_(len(results), 1)
     eq_(results[0][0], "49a1c77")
-    eq_(results[0][1]["log"].find("fake@fake.biz") == 0, True)
+    eq_(results[0][1]["message"].find("fake@fake.biz") == 0, True)
 
 
 def test_chunk_text():

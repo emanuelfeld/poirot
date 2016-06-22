@@ -27,10 +27,10 @@ Hit {{"space"|style('bold')}} to continue and {{"q"|style('bold')}} to quit
 {{"---------------------------------------------------------------------------------"|style('gray')}}
   Commit {{ info['repo_url']|style('darkblue')}}{{"/commit/"|style('darkblue')}}{{ commit |style('darkblue')}}
   Author {{ data[term][commit]["author_name"]}}, {{ data[term][commit]["author_email"]|strip}}
-  Date {{ data[term][commit]["author_date"]}}{% if data[term][commit]["log"]%}
+  Date {{ data[term][commit]["author_date"]}}{% if data[term][commit]["message"]%}
   
     {{"Commit Message"|style('darkgreen')|fail}}
-{{data[term][commit]["log"]|highlight(term)|wrap(80, 4)|strip}}{%endif%}{% for file in data[term][commit]['files']%}
+{{data[term][commit]["message"]|highlight(term)|wrap(80, 4)|strip}}{%endif%}{% for file in data[term][commit]['files']%}
 
   {{file['file']|style('darkgreen')|fail}}
 {% for match in file['matches']%}

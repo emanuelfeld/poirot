@@ -10,9 +10,9 @@ Pattern: {{term}}
 {% for commit in data[term] %}
  Commit: {{info['repo_url']}}/commit/{{commit}}
  Author: {{data[term][commit]['author_name']}}, {{data[term][commit]['author_email']|strip}}
- Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["log"]%}
+ Date: {{data[term][commit]['author_date']}}{% if data[term][commit]["message"]%}
   Commit Message
-{{data[term][commit]["log"]|wrap(80, 5)|strip}}
+{{data[term][commit]["message"]|wrap(80, 5)|strip}}
   {%endif%}{% for file in data[term][commit]['files']%}
   File: {{file['file']}}
 {%for match in file['matches']%}
