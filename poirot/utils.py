@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
+import os
 import sys
 import subprocess
 
@@ -51,7 +54,8 @@ def execute_cmd(cmd):
     """
 
     try:
-        popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+        popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 universal_newlines=True)
         (out, err) = popen.communicate()
     except UnicodeDecodeError:
         popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -66,8 +70,38 @@ def execute_cmd(cmd):
     return (out, err)
 
 
-def try_utf8_decode(text):
+def utf8_decode(text):
     try:
         return text.decode("utf-8")
     except AttributeError:
         return text
+
+
+def is_git_dir(directory):
+    # checks that command invoked on a git directory
+    if not os.path.exists(directory):
+        raise IOError("""Invalid .git directory: {directory}\nSpecify
+                      the correct local directory with
+                      --dir""".format(directory=directory))
+
+def clone_pull(git_url, repo_dir):
+    """
+    Clones a repository from `git_url` or optionally does a
+    git pull if the repository already exists at `repo_dir`.
+    Runs only if url argument provided to poirot command.
+    """
+    try:
+        cmd = ["git", "clone", git_url, repo_dir]
+        subprocess.check_output(cmd, universal_newlines=True)
+
+    except subprocess.CalledProcessError:
+        response = ask("Do you want to git-pull?", ["y", "n"], "darkblue")
+        if response == "y":
+            cmd = ["git", "--git-dir=%s/.git" % (repo_dir), "pull"]
+            out = subprocess.check_output(cmd, universal_newlines=True)
+            print(style("Git says: {}".format(out), "smoke"))
+
+    except:
+        error = sys.exc_info()[0]
+        print(style("Problem writing to destination: {}\n".format(repo_dir), "red"), error)
+        raise
